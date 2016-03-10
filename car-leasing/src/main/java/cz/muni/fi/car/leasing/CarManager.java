@@ -7,7 +7,7 @@ import java.util.List;
  * @author Jakub Holy
  */
 public interface CarManager {
-    public void createCar(Car car);
+    public void create(Car car);
     public void delete(Long carId);
     public void update(Car car);
     public Car findById(Long carId);

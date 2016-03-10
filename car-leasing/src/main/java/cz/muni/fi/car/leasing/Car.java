@@ -6,6 +6,7 @@
 package cz.muni.fi.car.leasing;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  *
@@ -70,6 +71,44 @@ public class Car {
 
     public void setRegistrationPlate(String registrationPlate) {
         this.registrationPlate = registrationPlate;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.type);
+        hash = 97 * hash + Objects.hashCode(this.vendor);
+        hash = 97 * hash + Objects.hashCode(this.modelYear);
+        hash = 97 * hash + Objects.hashCode(this.seats);
+        hash = 97 * hash + Objects.hashCode(this.registrationPlate);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Car other = (Car) obj;
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        if (!Objects.equals(this.vendor, other.vendor)) {
+            return false;
+        }
+        if (!Objects.equals(this.modelYear, other.modelYear)) {
+            return false;
+        }
+        if (!Objects.equals(this.seats, other.seats)) {
+            return false;
+        }
+        if (!Objects.equals(this.registrationPlate, other.registrationPlate)) {
+            return false;
+        }
+        return true;
     }
     
     
