@@ -5,50 +5,40 @@ import java.util.List;
 /**
  * @author Jakub Holy
  */
-public class CarManagerImpl implements CarManager{
+public class LeaseManagerImpl implements LeaseManager{
 
     @Override
-    public void create(Car car) {
+    public void create(Lease lease) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void delete(Long carId) {
+    public void delete(Long leaseId) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void update(Car car) {
+    public void update(Lease lease) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Car findById(Long carId) {
+    public Lease findById(Long leaseId) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<Car> findByType(String type) {
+    public List<Lease> findByCustomer(Customer customer) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<Car> findAll() {
+    public List<Lease> findByCar(Car car) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<Car> findBySeats(Integer seats) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<Car> findByVendor(String vendor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Car findByRegistration(String registrationPlate) {
+    public List<Lease> findAll() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

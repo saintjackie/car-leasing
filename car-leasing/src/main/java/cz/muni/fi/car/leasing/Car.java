@@ -1,15 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.car.leasing;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 /**
- *
  * @author Jakub Holy
  */
 public class Car {
@@ -21,8 +15,7 @@ public class Car {
     private Integer seats;
     private String registrationPlate;
     
-    public Car(){
-        
+    public Car(){        
     }
 
     public Long getId() {
