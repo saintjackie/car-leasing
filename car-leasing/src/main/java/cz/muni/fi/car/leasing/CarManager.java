@@ -3,10 +3,10 @@ package cz.muni.fi.car.leasing;
 import java.util.List;
 
 /**
- *
  * @author Jakub Holy
  */
 public interface CarManager {
+    
     public void create(Car car);
     public void delete(Long carId);
     public void update(Car car);

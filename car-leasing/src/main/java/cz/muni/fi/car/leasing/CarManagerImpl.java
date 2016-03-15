@@ -3,7 +3,6 @@ package cz.muni.fi.car.leasing;
 import java.util.List;
 
 /**
- *
  * @author Jakub Holy
  */
 public class CarManagerImpl implements CarManager{

@@ -4,16 +4,21 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
- *
  * @author Jakub Holy
  */
 public class CarManagerImplTest {
     
     private CarManager carManager;
     private Car car;
+    
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+    
     
     @Before
     public void setUp(){
@@ -35,12 +40,21 @@ public class CarManagerImplTest {
     }
     
     @Test
+    public void testCreateNullException(){
+        exception.expect(NullPointerException.class);
+        carManager.create(null);
+    }
+    
+    @Test
     public void testDelete(){
         carManager.create(car);
         carManager.delete(car.getId());
         Car car2 = carManager.findById(car.getId());
-        Assert.assertNull(car2);
-        
+        Assert.assertNull(car2);        
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteIllegalArgumentException(){
+        carManager.delete(-3L);
     }
     
     @Test
@@ -84,7 +98,7 @@ public class CarManagerImplTest {
         carManager.create(car);
         List<Car> cars = carManager.findBySeats(5);
         Assert.assertEquals(1, cars.size());
-    }
+    }        
     
     @Test
     public void testFindByVendor(){
