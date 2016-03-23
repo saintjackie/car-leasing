@@ -69,11 +69,7 @@ public class Car {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.type);
-        hash = 97 * hash + Objects.hashCode(this.vendor);
-        hash = 97 * hash + Objects.hashCode(this.modelYear);
-        hash = 97 * hash + Objects.hashCode(this.seats);
-        hash = 97 * hash + Objects.hashCode(this.registrationPlate);
+        hash = 53 * hash + Objects.hashCode(this.id);
         return hash;
     }
 
@@ -86,23 +82,13 @@ public class Car {
             return false;
         }
         final Car other = (Car) obj;
-        if (!Objects.equals(this.type, other.type)) {
-            return false;
-        }
-        if (!Objects.equals(this.vendor, other.vendor)) {
-            return false;
-        }
-        if (!Objects.equals(this.modelYear, other.modelYear)) {
-            return false;
-        }
-        if (!Objects.equals(this.seats, other.seats)) {
-            return false;
-        }
-        if (!Objects.equals(this.registrationPlate, other.registrationPlate)) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         return true;
     }
+
+    
     
     
 }

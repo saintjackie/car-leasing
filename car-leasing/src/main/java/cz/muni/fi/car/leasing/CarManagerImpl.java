@@ -1,11 +1,12 @@
 package cz.muni.fi.car.leasing;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,8 +23,7 @@ public class CarManagerImpl implements CarManager{
         this.dataSource = dataSource;
     }
 
-    CarManagerImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public CarManagerImpl() {
     }
     
     
@@ -41,7 +41,7 @@ public class CarManagerImpl implements CarManager{
             
             st.setString(1,car.getType());
             st.setString(2, car.getVendor());
-            st.setTimestamp(3, Timestamp.valueOf(car.getModelYear().atStartOfDay()));
+            st.setDate(3, Date.valueOf(car.getModelYear()));
             st.setInt(4, car.getSeats());
             st.setString(5, car.getRegistrationPlate());
             
@@ -106,12 +106,11 @@ public class CarManagerImpl implements CarManager{
         
         try(    Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement(
-                        "UPDATE CAR SET type = ?, vendor = ?, modelYear = ?, seats = ?, registrationPlate = ? WHERE id = ?",
-                        Statement.RETURN_GENERATED_KEYS)){
+                        "UPDATE CAR SET type = ?, vendor = ?, modelYear = ?, seats = ?, registrationPlate = ? WHERE id = ?")){
             
             st.setString(1,car.getType());
             st.setString(2, car.getVendor());
-            st.setTimestamp(3, Timestamp.valueOf(car.getModelYear().atStartOfDay()));
+            st.setDate(3, Date.valueOf(car.getModelYear()));
             st.setInt(4, car.getSeats());
             st.setString(5, car.getRegistrationPlate());
             st.setLong(6, car.getId());
@@ -122,7 +121,7 @@ public class CarManagerImpl implements CarManager{
             }
                         
         } catch (SQLException ex) {
-
+            Logger.getLogger(CarManagerImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -151,27 +150,102 @@ public class CarManagerImpl implements CarManager{
 
     @Override
     public List<Car> findByType(String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
+                        "SELECT id,type,vendor,modelYear,seats,registrationPlate FROM CAR WHERE type = ?")) {
+            
+            st.setString(1, type);
+            ResultSet rs = st.executeQuery();
+            List<Car> cars = new ArrayList<>();
+            while(rs.next()){
+                cars.add(resultSetToCar(rs));
+            }
+            return cars;
+            
+        } catch (SQLException ex) {
+            return null;
+        }
     }
 
     @Override
     public List<Car> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
+                        "SELECT id,type,vendor,modelYear,seats,registrationPlate FROM CAR")) {
+
+            ResultSet rs = st.executeQuery();
+            List<Car> cars = new ArrayList<>();
+            while(rs.next()){
+                cars.add(resultSetToCar(rs));
+            }
+            return cars;
+            
+        } catch (SQLException ex) {
+            return null;
+        }
     }
 
     @Override
     public List<Car> findBySeats(Integer seats) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
+                        "SELECT id,type,vendor,modelYear,seats,registrationPlate FROM CAR WHERE seats = ?")) {
+            
+            st.setInt(1, seats);
+            ResultSet rs = st.executeQuery();
+            List<Car> cars = new ArrayList<>();
+            while(rs.next()){
+                cars.add(resultSetToCar(rs));
+            }
+            return cars;
+            
+        } catch (SQLException ex) {
+            return null;
+        }
     }
 
     @Override
     public List<Car> findByVendor(String vendor) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
+                        "SELECT id,type,vendor,modelYear,seats,registrationPlate FROM CAR WHERE vendor = ?")) {
+            
+            st.setString(1, vendor);
+            ResultSet rs = st.executeQuery();
+            List<Car> cars = new ArrayList<>();
+            while(rs.next()){
+                cars.add(resultSetToCar(rs));
+            }
+            return cars;
+            
+        } catch (SQLException ex) {
+            return null;
+        }
     }
 
     @Override
     public Car findByRegistration(String registrationPlate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
+                        "SELECT id,type,vendor,modelYear,seats,registrationPlate FROM CAR WHERE registrationPlate = ?")) {
+            
+            st.setString(1, registrationPlate);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Car car = resultSetToCar(rs);
+                return car;
+            }else{
+                return null;
+            }
+            
+        } catch (SQLException ex) {
+            return null;
+        }
     }
 
     private Car resultSetToCar(ResultSet rs) throws SQLException {
@@ -179,7 +253,7 @@ public class CarManagerImpl implements CarManager{
         car.setId(rs.getLong("id"));
         car.setType(rs.getString("type"));
         car.setVendor(rs.getString("vendor"));
-        car.setModelYear(rs.getTimestamp("modelYear").toLocalDateTime().toLocalDate());
+        car.setModelYear(rs.getDate("modelYear").toLocalDate());
         car.setSeats(rs.getInt("seats"));
         car.setRegistrationPlate(rs.getString("registrationPlate"));
         return car;
