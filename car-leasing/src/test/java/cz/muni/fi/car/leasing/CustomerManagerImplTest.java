@@ -20,22 +20,16 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class CustomerManagerImplTest {
 
-    private Customer customer;
     private CustomerManager customerManager;
 
     @Before
     public void setUp() throws Exception {
         customerManager = new CustomerManagerImpl();
-        customer = new Customer();
-        customer.setId(1L);
-        customer.setFullName("Franta Brambora");
-        customer.setAddress("V hospode 4");
-        customer.setBirthDate(LocalDate.now());
-        customer.setPhoneNumber("0123456789");
     }
 
     @Test
     public void testCreate() throws Exception {
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
         customerManager.create(customer);
         Customer customer2 = customerManager.findById(customer.getId());
         assertThat("Created object is not equal to template", customer2, is(equalTo(customer)));
@@ -44,55 +38,74 @@ public class CustomerManagerImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateWithWrongBirthDate() {
-        Customer customerWrongBirthDate = new Customer();
-        customerWrongBirthDate.setBirthDate(LocalDate.of(1893, Month.JUNE, 6));
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.of(1893, Month.JUNE, 6),
+                "0123456789");
+        customerManager.create(customer);
     }
 
     @Test
     public void testDelete() throws Exception {
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
         customerManager.create(customer);
         customerManager.delete(customer.getId());
         Customer nullCustomer = customerManager.findById(customer.getId());
         assertThat("Found customer that should have been deleted", null, is(nullCustomer));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteNotExisting() {
+        customerManager.delete(-123L);
+    }
+
     @Test
     public void testUpdate() throws Exception {
-        Customer customer2 = new Customer();
-        customer2.setId(3L);
-        customer2.setFullName("Corey Taylor");
-        customer2.setAddress("Des Moines, Iowa");
-        customer2.setBirthDate(LocalDate.of(1973, Month.DECEMBER, 8));
-        customer2.setPhoneNumber("555-666");
-        customerManager.create(customer2);
+        Customer customer = newCustomerInstance(3L, "Corey Taylor", "Des Moines, Iowa",
+                LocalDate.of(1973, Month.DECEMBER, 8), "555-666");
+        customerManager.create(customer);
 
-        customer2.setFullName("Bruce Dickinson");
-        customer2.setAddress("Ed Force One");
-        customer2.setBirthDate(LocalDate.of(1958, Month.AUGUST, 7));
-        customer2.setPhoneNumber("666");
-        customerManager.update(customer2);
+        //Customer customer2 = newCustomerInstance(customer.getId(), "Bruce Dickinson", "Ed Force One",
+        //        LocalDate.of(1958, Month.AUGUST, 7), "666");
+        //customerManager.update(customer2);
+
+        customer.setFullName("Bruce Dickinson");
+        customer.setAddress("Ed Force One");
+        customer.setBirthDate(LocalDate.of(1958, Month.AUGUST, 7));
+        customer.setPhoneNumber("666");
+        customerManager.update(customer);
 
         Customer updatedCustomer = customerManager.findById(3L);
-        assertThat("Updated customer in store is not equal to sent customer values", customer2,
+        assertThat("Updated customer in store is not equal to sent customer values", customer,
                 is(equalTo(updatedCustomer)));
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdateNonExisting() {
+        Customer customer = newCustomerInstance(-666L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
+        customerManager.update(customer);
+    }
+
     @Test
     public void testFindById() throws Exception {
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
         customerManager.create(customer);
         Customer retrievedCustomer = customerManager.findById(customer.getId());
         assertThat("Expected customer was not retrieved", customer, is(equalTo(retrievedCustomer)));
     }
 
+    @Test()
+    public void testFindByWrongId (){
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
+        customerManager.create(customer);
+        Customer retrievedCustomer = customerManager.findById(-123L);
+        assertThat("Retrieved notnull object while null expected", null, is(retrievedCustomer));
+    }
+
     @Test
     public void testFindByName() throws Exception {
-        Customer customer2 = new Customer();
-        customer2.setId(4L);
-        customer2.setFullName(customer.getFullName());
-        customer2.setAddress("Some address");
-        customer2.setBirthDate(LocalDate.of(1994, Month.AUGUST, 6));
-        customer2.setPhoneNumber("1053");
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
+        Customer customer2 = newCustomerInstance(4L, customer.getFullName(), "Some address",
+                LocalDate.of(1994, Month.AUGUST, 6), "1053");
         customerManager.create(customer);
         customerManager.create(customer2);
 
@@ -108,13 +121,16 @@ public class CustomerManagerImplTest {
     }
 
     @Test
+    public void testFindByWrongName() {
+        List<Customer> customerList = customerManager.findByName("Definitely not a name");
+        assertThat("Expected empty list", null, is(customerList));
+    }
+
+    @Test
     public void testFindAll() throws Exception {
-        Customer customer2 = new Customer();
-        customer2.setId(4L);
-        customer2.setFullName(customer.getFullName());
-        customer2.setAddress("Some address");
-        customer2.setBirthDate(LocalDate.of(1994, Month.AUGUST, 6));
-        customer2.setPhoneNumber("1053");
+        Customer customer = newCustomerInstance(1L, "Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
+        Customer customer2 = newCustomerInstance(4L, customer.getFullName(), "Some address",
+                LocalDate.of(1994, Month.AUGUST, 6), "1053");
         customerManager.create(customer);
         customerManager.create(customer2);
 
@@ -129,10 +145,20 @@ public class CustomerManagerImplTest {
         assertThat("Expected customers was not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
     }
 
+    private Customer newCustomerInstance(Long id, String fullName, String address, LocalDate birthDate, String phoneNumber) {
+        Customer customer = new Customer();
+        customer.setId(id);
+        customer.setFullName(fullName);
+        customer.setAddress(address);
+        customer.setBirthDate(birthDate);
+        customer.setPhoneNumber(phoneNumber);
+        return customer;
+    }
+
     private static Comparator<Customer> idComparator = new Comparator<Customer>() {
         @Override
         public int compare(Customer o1, Customer o2) {
             return o1.getId().compareTo(o2.getId());
         }
-    }; 
+    };
 }
