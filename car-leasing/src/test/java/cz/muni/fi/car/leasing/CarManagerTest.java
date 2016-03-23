@@ -2,7 +2,7 @@ package cz.muni.fi.car.leasing;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import org.junit.rules.ExpectedException;
 /**
  * @author Jakub Holy
  */
-public class CarManagerImplTest {
+public class CarManagerTest {
     
     private CarManager carManager;
     private Car car;
@@ -22,7 +22,10 @@ public class CarManagerImplTest {
     
     @Before
     public void setUp(){
-        carManager = new CarManagerImpl();
+        carManager = new CarManagerImpl();        
+    }
+    
+    private void createNewCar(){
         car = new Car();
         car.setId(1L);
         car.setType("Octavia");
@@ -34,9 +37,11 @@ public class CarManagerImplTest {
     
     @Test
     public void testCreate(){
+        createNewCar();
         carManager.create(car);
         Car car2 = carManager.findById(car.getId());
-        Assert.assertEquals(car2,car);
+        assertEquals(car2,car);
+        assertNotNull(car2);
     }
     
     @Test
@@ -47,39 +52,55 @@ public class CarManagerImplTest {
     
     @Test
     public void testDelete(){
+        createNewCar();
         carManager.create(car);
         carManager.delete(car.getId());
         Car car2 = carManager.findById(car.getId());
-        Assert.assertNull(car2);        
+        assertNull(car2);        
     }
+    
     @Test(expected = IllegalArgumentException.class)
     public void testDeleteIllegalArgumentException(){
         carManager.delete(-3L);
     }
     
+    @Test(expected = NullPointerException.class)
+    public void testDeleteNullPointerException(){
+        carManager.delete(null);
+    }
+    
     @Test
     public void testUpdate(){
+        createNewCar();
         carManager.create(car);
         car.setType("Roomster");
         car.setRegistrationPlate("BRO 5674");
         car.setSeats(8);
         carManager.update(car);
         Car car2 = carManager.findById(car.getId());
-        Assert.assertEquals(8, (int)car2.getSeats());
-        Assert.assertEquals(car.getRegistrationPlate(),car2.getRegistrationPlate());
-        Assert.assertEquals(car.getType(), car2.getType());
+        assertEquals(8, (int)car2.getSeats());
+        assertEquals(car.getRegistrationPlate(),car2.getRegistrationPlate());
+        assertEquals(car.getType(), car2.getType());        
+    }
+    
+    @Test(expected = NullPointerException.class)
+    public void testUpdateNullPointerException(){
+        carManager.update(null);
     }
     
     @Test
     public void testFindByType(){
+         createNewCar();
          carManager.create(car);
          List<Car> cars = carManager.findByType(car.getType());
-         Assert.assertEquals(1, cars.size());
-         Assert.assertEquals(car, cars.get(0));
+         assertEquals(1, cars.size());
+         assertNotNull(cars.get(0));
+         assertEquals(car, cars.get(0));
     }
     
     @Test
     public void testFindAll(){
+        createNewCar();
         carManager.create(car);
         Car car2 = new Car();
         car2.setId(2L);
@@ -90,18 +111,25 @@ public class CarManagerImplTest {
         car2.setRegistrationPlate("LOL 0001");
         carManager.create(car2);
         List<Car> cars = carManager.findAll();
-        Assert.assertEquals(2, cars.size());
+        assertEquals(2, cars.size());
+        assertNotNull(cars.get(0));
+        assertNotNull(cars.get(1));
     }
     
     @Test
     public void testFindBySeats(){
+        createNewCar();
         carManager.create(car);
         List<Car> cars = carManager.findBySeats(5);
-        Assert.assertEquals(1, cars.size());
+        assertEquals(1, cars.size());
+        assertEquals(cars.get(0), car);
+        assertNotNull(cars.get(0));
+        
     }        
     
     @Test
     public void testFindByVendor(){
+        createNewCar();
         carManager.create(car);
         Car car2 = new Car();
         car2.setId(2L);
@@ -114,11 +142,14 @@ public class CarManagerImplTest {
         
         List<Car> cars = carManager.findByVendor("Skoda");
         
-        Assert.assertEquals(2, cars.size());        
+        assertEquals(2, cars.size());
+        assertNotNull(cars.get(0));
+        assertNotNull(cars.get(1));
     }
     
     @Test
     public void testFindByRegistration(){
+        createNewCar();
         carManager.create(car);
         Car car2 = new Car();
         car2.setId(2L);
@@ -131,8 +162,8 @@ public class CarManagerImplTest {
         
         Car car3 = carManager.findByRegistration(car.getRegistrationPlate());
         
-        Assert.assertEquals(car, car3);
-        
+        assertEquals(car, car3);
+        assertNotNull(car);
     }
     
 }
