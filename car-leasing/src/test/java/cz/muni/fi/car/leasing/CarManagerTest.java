@@ -1,7 +1,12 @@
 package cz.muni.fi.car.leasing;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import javax.sql.DataSource;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -15,14 +20,41 @@ public class CarManagerTest {
     
     private CarManager carManager;
     private Car car;
+    private DataSource dataSource;
     
     @Rule
     public final ExpectedException exception = ExpectedException.none();
     
     
     @Before
-    public void setUp(){
-        carManager = new CarManagerImpl();        
+    public void setUp() throws SQLException{
+        
+        dataSource = prepareDataSource();
+        try(Connection connection = dataSource.getConnection()){
+            connection.prepareStatement("CREATE TABLE CAR ("
+                    + "id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                    + "type VARCHAR(50),"
+                    + "vendor VARCHAR(50),"
+                    + "modelYear DATE,"
+                    + "seats INT,"
+                    + "registrationPlate VARCHAR(10))").executeUpdate();                        
+        }
+        carManager = new CarManagerImpl(dataSource);     
+    }
+    
+    @After
+    public void dropTable() throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.prepareStatement("DROP TABLE CAR").executeUpdate();
+        }
+    }
+    
+    private static DataSource prepareDataSource() throws SQLException {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        //we will use in memory database
+        ds.setDatabaseName("memory:carmanager-test");
+        ds.setCreateDatabase("create");
+        return ds;
     }
     
     private void createNewCar(){
@@ -93,6 +125,9 @@ public class CarManagerTest {
          createNewCar();
          carManager.create(car);
          List<Car> cars = carManager.findByType(car.getType());
+         
+         assertNotNull(cars);
+         assertTrue(cars.contains(car));
          assertEquals(1, cars.size());
          assertNotNull(cars.get(0));
          assertEquals(car, cars.get(0));
@@ -111,6 +146,10 @@ public class CarManagerTest {
         car2.setRegistrationPlate("LOL 0001");
         carManager.create(car2);
         List<Car> cars = carManager.findAll();
+        
+        assertNotNull(cars);
+        assertTrue(cars.contains(car));
+        assertTrue(cars.contains(car2));
         assertEquals(2, cars.size());
         assertNotNull(cars.get(0));
         assertNotNull(cars.get(1));
@@ -121,9 +160,12 @@ public class CarManagerTest {
         createNewCar();
         carManager.create(car);
         List<Car> cars = carManager.findBySeats(5);
+        
+        assertNotNull(cars);
+        assertTrue(cars.contains(car));
         assertEquals(1, cars.size());
-        assertEquals(cars.get(0), car);
         assertNotNull(cars.get(0));
+        assertEquals(cars.get(0), car);
         
     }        
     
@@ -142,6 +184,9 @@ public class CarManagerTest {
         
         List<Car> cars = carManager.findByVendor("Skoda");
         
+        assertNotNull(cars);
+        assertTrue(cars.contains(car));
+        assertTrue(cars.contains(car2));
         assertEquals(2, cars.size());
         assertNotNull(cars.get(0));
         assertNotNull(cars.get(1));
