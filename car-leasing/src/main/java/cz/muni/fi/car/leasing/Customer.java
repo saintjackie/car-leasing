@@ -30,6 +30,9 @@ public class Customer {
     }
 
     public void setFullName(String fullName) {
+        if(fullName == null) {
+            throw new IllegalArgumentException("Every customer should have a proper name, not null");
+        }
         this.fullName = fullName;
     }
 
@@ -84,5 +87,16 @@ public class Customer {
         result = 31 * result + (birthDate != null ? birthDate.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", fullName='" + fullName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", birthDate=" + birthDate +
+                ", address='" + address + '\'' +
+                '}';
     }
 }
