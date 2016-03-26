@@ -12,8 +12,8 @@ public interface LeaseManager {
     void delete(Long id);
     void update(Lease lease);
     Lease findById(Long id);
-    List<Lease> findByCustomer(Customer customer);
-    List<Lease> findByCar(Car car);
+    List<Lease> findByCustomer(Long customerId);
+    List<Lease> findByCar(Long carId);
     List<Lease> findAll();
 
 }
