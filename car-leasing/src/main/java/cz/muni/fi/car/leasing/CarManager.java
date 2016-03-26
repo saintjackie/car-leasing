@@ -7,14 +7,14 @@ import java.util.List;
  */
 public interface CarManager {
     
-    public void create(Car car);
-    public void delete(Long carId);
-    public void update(Car car);
-    public Car findById(Long carId);
-    public List<Car> findByType(String type);
-    public List<Car> findAll();
-    public List<Car> findBySeats(Integer seats);
-    public List<Car> findByVendor(String vendor);
-    public Car findByRegistration(String registrationPlate);
+    void create(Car car);
+    void delete(Long carId);
+    void update(Car car);
+    Car findById(Long carId);
+    List<Car> findByType(String type);
+    List<Car> findAll();
+    List<Car> findBySeats(Integer seats);
+    List<Car> findByVendor(String vendor);
+    Car findByRegistration(String registrationPlate);
     
 }
