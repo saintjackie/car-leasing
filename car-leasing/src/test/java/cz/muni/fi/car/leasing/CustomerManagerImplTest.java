@@ -54,7 +54,7 @@ public class CustomerManagerImplTest {
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
         //we will use in memory database
-        ds.setDatabaseName("memory:car-manager-db");
+        ds.setDatabaseName("memory:customer-manager-db");
         ds.setCreateDatabase("create");
         return ds;
     }
@@ -85,7 +85,7 @@ public class CustomerManagerImplTest {
         assertThat("Found customer that should have been deleted", null, is(nullCustomer));
     }
 
-    @Test(expected = DBException.class)
+    @Test(expected = EntityNotFoundException.class)
     public void testDeleteNotExisting() {
         customerManager.delete(-123L);
     }
