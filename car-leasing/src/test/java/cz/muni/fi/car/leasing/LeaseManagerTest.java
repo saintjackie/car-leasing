@@ -24,7 +24,7 @@ public class LeaseManagerTest {
     public void setUp() throws SQLException {
         dataSource = prepareDataSource();
         try(Connection connection = dataSource.getConnection()){
-            connection.prepareStatement("CREATE TABLE LEASE ("
+            connection.prepareStatement("CREATE TABLE lease ("
                     + "id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
                     + "carId BIGINT,"
                     + "customerId BIGINT,"
