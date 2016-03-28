@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.*;
  * @author Jan Budinsky
  */
 
-public class CustomerManagerImplTest {
+public class CustomerManagerTest {
 
 
     private DataSource dataSource;
@@ -150,7 +150,7 @@ public class CustomerManagerImplTest {
         Collections.sort(retrievedCustomerList, idComparator);
         Collections.sort(expectedCustomerList, idComparator);
 
-        assertThat("Expected customers was not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
+        assertThat("Expected customers were not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
     }
 
     @Test
@@ -175,7 +175,7 @@ public class CustomerManagerImplTest {
         Collections.sort(retrievedCustomerList, idComparator);
         Collections.sort(expectedCustomerList, idComparator);
 
-        assertThat("Expected customers was not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
+        assertThat("Expected customers were not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
     }
 
     private Customer newCustomerInstance(String fullName, String address, LocalDate birthDate, String phoneNumber) {

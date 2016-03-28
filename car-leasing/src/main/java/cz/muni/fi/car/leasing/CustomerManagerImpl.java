@@ -210,7 +210,9 @@ public class CustomerManagerImpl implements CustomerManager {
         customer.setId(rs.getLong("id"));
         customer.setFullName(rs.getString("full_name"));
         customer.setPhoneNumber(rs.getString("phone"));
-        customer.setBirthDate(rs.getDate("birth_date").toLocalDate());
+        if(rs.getDate("birth_date") != null) {
+            customer.setBirthDate(rs.getDate("birth_date").toLocalDate());
+        }
         customer.setAddress(rs.getString("address"));
 
         return customer;

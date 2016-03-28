@@ -1,0 +1,10 @@
+CREATE TABLE lease (
+  id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  carId BIGINT NOT NULL,
+  customerId BIGINT NOT NULL,
+  startTime TIMESTAMP,
+  expectedEndTime TIMESTAMP,
+  realEndTime TIMESTAMP,
+  price DECIMAL,
+  fee DECIMAL
+);
