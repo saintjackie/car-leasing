@@ -2,7 +2,11 @@ package cz.muni.fi.car.leasing;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.sql.DataSource;
@@ -19,6 +23,8 @@ public class LeaseManagerTest {
 
     private DataSource dataSource;
     private LeaseManager leaseManager;
+    private Long customerId;
+    private Long carId;
 
     @Before
     public void setUp() throws SQLException {
@@ -33,14 +39,79 @@ public class LeaseManagerTest {
                     + "realEndTime TIMESTAMP,"
                     + "price DECIMAL,"
                     + "fee DECIMAL)").executeUpdate();
+            connection.prepareStatement("CREATE TABLE customer (" +
+                    "    id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY," +
+                    "    full_name VARCHAR(60) NOT NULL," +
+                    "    phone VARCHAR(20)," +
+                    "    birth_date DATE," +
+                    "    address VARCHAR(100))").executeUpdate();
+            connection.prepareStatement("CREATE TABLE CAR ("
+                    + "id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
+                    + "type VARCHAR(50),"
+                    + "vendor VARCHAR(50),"
+                    + "modelYear DATE,"
+                    + "seats INT,"
+                    + "registrationPlate VARCHAR(10))").executeUpdate();
+            insertCustomerAndCar(connection);
         }
         leaseManager = new LeaseManagerImpl(dataSource);
+    }
+    
+    private void insertCustomerAndCar(Connection connection) throws SQLException {
+        Customer customer = new Customer();
+        customer.setFullName("Franta Brambora");
+        PreparedStatement stCustomer = connection.prepareStatement("INSERT INTO customer (full_name) VALUES " +
+                "('Franta Brambora')", Statement.RETURN_GENERATED_KEYS);
+        int addedCustomers = stCustomer.executeUpdate();
+        if (addedCustomers != 1) {
+            throw new DBException("Internal Error: More rows (" + addedCustomers +
+                    ") inserted when trying to insert customer");
+        }
+        ResultSet rsKeysCustomer = stCustomer.getGeneratedKeys();
+        this.customerId = getIdFromResultSetKeys(rsKeysCustomer, customer);
+
+        Car car = new Car();
+        car.setType("Audi");
+        car.setModelYear(LocalDate.of(1999, 11, 11));
+        PreparedStatement stCar = connection.prepareStatement("INSERT INTO car (type, modelYear) VALUES ('Audi', " +
+                        "'1999-11-11')",
+                Statement.RETURN_GENERATED_KEYS);
+        int addedCars = stCar.executeUpdate();
+        if (addedCars != 1) {
+            throw new DBException("Internal Error: More rows (" + addedCars +
+                    ") inserted when trying to insert car");
+        }
+        ResultSet rsKeysCar = stCar.getGeneratedKeys();
+        this.carId = getIdFromResultSetKeys(rsKeysCar, car);
+    }
+
+    private Long getIdFromResultSetKeys(ResultSet keyRS, Object object) throws DBException, SQLException {
+        if (keyRS.next()) {
+
+            if (keyRS.getMetaData().getColumnCount() != 1) {
+                throw new DBException("Internal Error: Generated key retrieving failed when trying to insert " +
+                        "following object: " + object + " - wrong key fields count: " +
+                        keyRS.getMetaData().getColumnCount());
+            }
+
+            Long result = keyRS.getLong(1);
+            if (keyRS.next()) {
+                throw new DBException("Internal Error: Generated key retrieving failed when trying to insert " +
+                        "following object: " + object + " - more keys found");
+            }
+            return result;
+        } else {
+            throw new DBException("Internal Error: Generated key retrieving failed when trying to insert following " +
+                    "object: " + object + " - no key found");
+        }
     }
 
     @After
     public void dropTable() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             connection.prepareStatement("DROP TABLE LEASE").executeUpdate();
+            connection.prepareStatement("DROP TABLE car").executeUpdate();
+            connection.prepareStatement("DROP TABLE customer").executeUpdate();
         }
     }
 
@@ -53,8 +124,8 @@ public class LeaseManagerTest {
 
     private Lease newLeaseInstance(){
         Lease lease = new Lease();
-        lease.setCarId(1L);
-        lease.setCustomerId(1L);
+        lease.setCarId(this.carId);
+        lease.setCustomerId(this.customerId);
         lease.setStartTime(LocalDateTime.of(2015,1,1,11,11));
         lease.setExpectedEndTime(LocalDateTime.of(2015,1,3,11,11));
         lease.setRealEndTime(LocalDateTime.of(2015, 1,2,11,11));
@@ -65,8 +136,8 @@ public class LeaseManagerTest {
 
     private Lease newLeaseInstance2(){
         Lease lease = new Lease();
-        lease.setCarId(2L);
-        lease.setCustomerId(1L);
+        lease.setCarId(this.carId);
+        lease.setCustomerId(this.customerId);
         lease.setStartTime(LocalDateTime.of(2015,1,1,11,11));
         lease.setExpectedEndTime(LocalDateTime.of(2015,1,3,11,11));
         lease.setRealEndTime(LocalDateTime.of(2015, 1,4,11,11));
@@ -85,7 +156,7 @@ public class LeaseManagerTest {
         assertEquals(lease, lease2);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateNullLease(){
         leaseManager.create(null);
     }
@@ -100,12 +171,12 @@ public class LeaseManagerTest {
         assertNull(lease2);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = EntityNotFoundException.class)
     public void testDeleteIllegalArgumentException(){
         leaseManager.delete(-3L);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDeleteNullPointerException(){
         leaseManager.delete(null);
     }
@@ -125,7 +196,7 @@ public class LeaseManagerTest {
         assertEquals(BigDecimal.ONE,lease2.getFee());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testUpdateNullLease(){
         leaseManager.update(null);
     }
@@ -158,30 +229,30 @@ public class LeaseManagerTest {
 
         assertNotNull(leases);
         assertTrue(leases.contains(lease));
-        assertEquals(1,leases.size());
+        assertEquals(2,leases.size());
         assertNotNull(leases.get(0));
+        assertNotNull(leases.get(1));
     }
 
     @Test
     public void testFindAllLeases(){
         Lease lease = newLeaseInstance();
         Lease lease2 = newLeaseInstance2();
-        Lease lease3 = newLeaseInstance();
+
         leaseManager.create(lease);
         leaseManager.create(lease2);
-        lease3.setCustomerId(3L);
-        leaseManager.create(lease);
+
 
         List<Lease> leases = leaseManager.findAll();
 
         assertNotNull(leases);
         assertTrue(leases.contains(lease));
         assertTrue(leases.contains(lease2));
-        assertTrue(leases.contains(lease3));
-        assertEquals(3,leases.size());
+
+        assertEquals(2,leases.size());
         assertNotNull(leases.get(0));
         assertNotNull(leases.get(1));
-        assertNotNull(leases.get(2));
+
 
     }
 
