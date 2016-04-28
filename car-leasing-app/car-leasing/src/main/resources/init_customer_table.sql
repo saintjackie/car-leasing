@@ -1,0 +1,7 @@
+CREATE TABLE customer (
+  id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  fullName VARCHAR(60) NOT NULL,
+  phone VARCHAR(20),
+  birthDate DATE,
+  address VARCHAR(100)
+);

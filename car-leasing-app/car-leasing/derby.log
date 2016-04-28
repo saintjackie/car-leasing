@@ -1,0 +1,39 @@
+----------------------------------------------------------------
+Thu Apr 28 13:26:15 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0154-5c9e-8e45-00000de4fb78 
+on database directory memory:/home/xholy1/PV168/Project-pv168/car-leasing/car-leasing-app/car-leasing/lease-manager-test with class loader sun.misc.Launcher$AppClassLoader@75b84c92 
+Loaded from file:/home/xholy1/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_66-b17
+user.dir=/home/xholy1/PV168/Project-pv168/car-leasing/car-leasing-app/car-leasing
+os.name=Linux
+os.arch=amd64
+os.version=4.4.7-300.fc23.x86_64
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Thu Apr 28 13:26:16 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance 90e64212-0154-5c9e-8e45-00000de4fb78 
+on database directory memory:/home/xholy1/PV168/Project-pv168/car-leasing/car-leasing-app/car-leasing/customer-manager-db with class loader sun.misc.Launcher$AppClassLoader@75b84c92 
+Loaded from file:/home/xholy1/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_66-b17
+user.dir=/home/xholy1/PV168/Project-pv168/car-leasing/car-leasing-app/car-leasing
+os.name=Linux
+os.arch=amd64
+os.version=4.4.7-300.fc23.x86_64
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Thu Apr 28 13:26:16 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance 374d4347-0154-5c9e-8e45-00000de4fb78 
+on database directory memory:/home/xholy1/PV168/Project-pv168/car-leasing/car-leasing-app/car-leasing/carmanager-test with class loader sun.misc.Launcher$AppClassLoader@75b84c92 
+Loaded from file:/home/xholy1/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_66-b17
+user.dir=/home/xholy1/PV168/Project-pv168/car-leasing/car-leasing-app/car-leasing
+os.name=Linux
+os.arch=amd64
+os.version=4.4.7-300.fc23.x86_64
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
