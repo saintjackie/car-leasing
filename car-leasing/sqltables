@@ -1,8 +1,0 @@
-CREATE TABLE CAR (
-    ID BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    type VARCHAR(50),
-    vendor VARCHAR(50),
-    modelYear DATE,
-    seats INT,
-    registrationPlate VARCHAR(10)
- );
