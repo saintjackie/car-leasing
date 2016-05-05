@@ -19,10 +19,10 @@ import javax.swing.table.AbstractTableModel;
 public class CarTableModel extends AbstractTableModel{
 
     private List<Car> cars = new ArrayList<>();
-    private ResourceBundle text;
+    private ResourceBundle texts;
     
     public CarTableModel(ResourceBundle texts){
-        
+        this.texts = texts;
     }
     
     @Override
@@ -33,6 +33,24 @@ public class CarTableModel extends AbstractTableModel{
     @Override
     public int getColumnCount() {
         return 5;
+    }
+    
+    @Override
+    public String getColumnName(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return "Type";
+            case 1:
+                return "Vendor";
+            case 2:
+                return "ModelYear";
+            case 3:
+                return "Seats";
+            case 4:
+                return "RegistrationPlate";
+            default:
+                throw new IllegalArgumentException("columnIndex");
+        }
     }
 
     @Override
@@ -50,8 +68,7 @@ public class CarTableModel extends AbstractTableModel{
             case 3: return car.getSeats();
             case 4: return car.getRegistrationPlate();
             default: return null;
-        }
-                
+        }                
     }
         
 }

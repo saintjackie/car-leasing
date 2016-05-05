@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.car.leasing.gui;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -13,12 +14,14 @@ import java.util.ResourceBundle;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    //private ResourceBundle texts = ResourceBundle.getBundle("Texty",cestina);
+    Locale cestina = Locale.forLanguageTag("cs-CZ");
+    private ResourceBundle texts = ResourceBundle.getBundle("texts",cestina);
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
         initComponents();
+         
     }
 
     /**

@@ -1,6 +1,5 @@
 package cz.muni.fi.car.leasing;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -11,7 +10,7 @@ public class Car {
     private Long id;
     private String type;
     private String vendor;
-    private LocalDate modelYear;
+    private Integer modelYear;
     private Integer seats;
     private String registrationPlate;
     
@@ -42,11 +41,11 @@ public class Car {
         this.vendor = vendor;
     }
 
-    public LocalDate getModelYear() {
+    public Integer getModelYear() {
         return modelYear;
     }
 
-    public void setModelYear(LocalDate modelYear) {
+    public void setModelYear(Integer modelYear) {
         this.modelYear = modelYear;
     }
 

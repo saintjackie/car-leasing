@@ -35,7 +35,7 @@ public class CarManagerTest {
                     + "id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
                     + "type VARCHAR(50),"
                     + "vendor VARCHAR(50),"
-                    + "modelYear DATE,"
+                    + "modelYear INT,"
                     + "seats INT,"
                     + "registrationPlate VARCHAR(10))").executeUpdate();                        
         }
@@ -62,7 +62,7 @@ public class CarManagerTest {
         car.setId(1L);
         car.setType("Octavia");
         car.setVendor("Skoda");
-        car.setModelYear(LocalDate.now());
+        car.setModelYear(2001);
         car.setRegistrationPlate("BKE 5435");
         car.setSeats(5);
     }
@@ -139,7 +139,7 @@ public class CarManagerTest {
         carManager.create(car);
         Car car2 = new Car();
         car2.setId(2L);
-        car2.setModelYear(LocalDate.now());
+        car2.setModelYear(2004);
         car2.setType("X6");
         car2.setVendor("BMW");
         car2.setSeats(5);
@@ -175,7 +175,7 @@ public class CarManagerTest {
         carManager.create(car);
         Car car2 = new Car();
         car2.setId(2L);
-        car2.setModelYear(LocalDate.now());
+        car2.setModelYear(2002);
         car2.setType("Roomster");
         car2.setVendor("Skoda");
         car2.setSeats(5);
@@ -198,7 +198,7 @@ public class CarManagerTest {
         carManager.create(car);
         Car car2 = new Car();
         car2.setId(2L);
-        car2.setModelYear(LocalDate.now());
+        car2.setModelYear(2003);
         car2.setType("Roomster");
         car2.setVendor("Skoda");
         car2.setSeats(5);

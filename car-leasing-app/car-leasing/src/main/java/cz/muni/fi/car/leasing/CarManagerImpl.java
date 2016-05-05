@@ -43,7 +43,7 @@ public class CarManagerImpl implements CarManager{
                 
             st.setString(1,car.getType());
             st.setString(2, car.getVendor());
-            st.setDate(3, Date.valueOf(car.getModelYear()));
+            st.setInt(3, car.getModelYear());
             st.setInt(4, car.getSeats());
             st.setString(5, car.getRegistrationPlate());
             
@@ -129,7 +129,7 @@ public class CarManagerImpl implements CarManager{
                 
                 st.setString(1, car.getType());
                 st.setString(2, car.getVendor());
-                st.setDate(3, Date.valueOf(car.getModelYear()));
+                st.setInt(3, car.getModelYear());
                 st.setInt(4, car.getSeats());
                 st.setString(5, car.getRegistrationPlate());
                 st.setLong(6, car.getId());
@@ -279,7 +279,7 @@ public class CarManagerImpl implements CarManager{
         car.setId(rs.getLong("id"));
         car.setType(rs.getString("type"));
         car.setVendor(rs.getString("vendor"));
-        car.setModelYear(rs.getDate("modelYear").toLocalDate());
+        car.setModelYear(rs.getInt("modelYear"));
         car.setSeats(rs.getInt("seats"));
         car.setRegistrationPlate(rs.getString("registrationPlate"));
         return car;

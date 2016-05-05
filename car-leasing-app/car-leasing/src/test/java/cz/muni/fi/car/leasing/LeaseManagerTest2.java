@@ -52,7 +52,7 @@ public class LeaseManagerTest2 {
                     + "id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,"
                     + "type VARCHAR(50),"
                     + "vendor VARCHAR(50),"
-                    + "modelYear DATE,"
+                    + "modelYear INT,"
                     + "seats INT,"
                     + "registrationPlate VARCHAR(10))").executeUpdate();
             insertCustomerAndCar(connection);
@@ -82,9 +82,9 @@ public class LeaseManagerTest2 {
 
         Car car = new Car();
         car.setType("Audi");
-        car.setModelYear(LocalDate.of(1999, 11, 11));
+        car.setModelYear(1999);
         PreparedStatement stCar = connection.prepareStatement("INSERT INTO car (type, modelYear) VALUES ('Audi', " +
-                        "'1999-11-11')",
+                        "1999)",
                 Statement.RETURN_GENERATED_KEYS);
         int addedCars = stCar.executeUpdate();
         if (addedCars != 1) {
