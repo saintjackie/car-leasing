@@ -62,7 +62,8 @@ public class CustomerPopUp extends javax.swing.JPanel {
 
         jTextField4.setText("jTextField4");
 
-        jButton1.setText("Vytvorit auto");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texts"); // NOI18N
+        jButton1.setLabel(bundle.getString("cars")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

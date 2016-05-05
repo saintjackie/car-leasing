@@ -5,7 +5,7 @@
  */
 package cz.muni.fi.car.leasing.gui;
 
-import java.util.Locale;
+
 import java.util.ResourceBundle;
 
 /**
@@ -14,14 +14,13 @@ import java.util.ResourceBundle;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    Locale cestina = Locale.forLanguageTag("cs-CZ");
-    private ResourceBundle texts = ResourceBundle.getBundle("texts",cestina);
+    private final ResourceBundle texts = ResourceBundle.getBundle("texts");
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
         initComponents();
-         
+         jTabbedPane1.setTitleAt(0, texts.getString("cars"));
     }
 
     /**
@@ -61,6 +60,9 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("Výpujčka aut");
         setSize(new java.awt.Dimension(800, 600));
 
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texts"); // NOI18N
+        jTabbedPane1.setName(bundle.getString("cars")); // NOI18N
+
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -74,7 +76,7 @@ public class MainFrame extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(jTable1);
 
-        jTabbedPane1.addTab("Auta", jScrollPane2);
+        jTabbedPane1.addTab("", jScrollPane2);
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -107,6 +109,7 @@ public class MainFrame extends javax.swing.JFrame {
         jTabbedPane1.addTab("Vypujcky", jScrollPane6);
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+        jTabbedPane1.getAccessibleContext().setAccessibleName(bundle.getString("cars")); // NOI18N
 
         jToolBar1.setRollover(true);
 
