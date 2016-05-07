@@ -1,6 +1,8 @@
 package cz.muni.fi.car.leasing;
 
+import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -152,14 +154,7 @@ public class LeaseManagerImpl implements LeaseManager {
 
             st.setLong(1, customerId);
 
-            ResultSet rs = st.executeQuery();
-
-            List<Lease> retrievedLeases = new ArrayList<>();
-
-            while (rs.next()) {
-                retrievedLeases.add(fillLeaseFromResultSet(rs));
-            }
-            return retrievedLeases;
+            return executeFindQuery(st);
 
         } catch (SQLException ex) {
             throw new DBException("Error when retrieving leases with customerId: " + customerId, ex);
@@ -174,18 +169,85 @@ public class LeaseManagerImpl implements LeaseManager {
 
             st.setLong(1, carId);
 
-            ResultSet rs = st.executeQuery();
-
-            List<Lease> retrievedLeases = new ArrayList<>();
-
-            while (rs.next()) {
-                Lease lease = fillLeaseFromResultSet(rs);
-                retrievedLeases.add(lease);
-            }
-            return retrievedLeases;
+            return executeFindQuery(st);
 
         } catch (SQLException ex) {
             throw new DBException("Error when retrieving leases with carId: " + carId, ex);
+        }
+    }
+
+    @Override
+    public List<Lease> findByStartTime(LocalDateTime startTime) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT * FROM lease WHERE startTime = ?")) {
+
+            st.setTimestamp(1, Timestamp.valueOf(startTime));
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving leases with StartTime: " + startTime, ex);
+        }
+    }
+
+    @Override
+    public List<Lease> findByExpectedEndTime(LocalDateTime expectedEndTime) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT * FROM lease WHERE expectedEndTime = ?")) {
+
+            st.setTimestamp(1, Timestamp.valueOf(expectedEndTime));
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving leases with ExpectedEndTime: " + expectedEndTime, ex);
+        }
+    }
+
+    @Override
+    public List<Lease> findByRealEndTime(LocalDateTime realEndTime) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT * FROM lease WHERE realEndTime = ?")) {
+
+            st.setTimestamp(1, Timestamp.valueOf(realEndTime));
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving leases with realEndTime: " + realEndTime, ex);
+        }
+    }
+
+    @Override
+    public List<Lease> findByPrice(BigDecimal price) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT * FROM lease WHERE price = ?")) {
+
+            st.setBigDecimal(1, price);
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving leases with price: " + price, ex);
+        }
+    }
+
+    @Override
+    public List<Lease> findByFee(BigDecimal fee) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT * FROM lease WHERE fee = ?")) {
+
+            st.setBigDecimal(1, fee);
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving leases with fee: " + fee, ex);
         }
     }
 
@@ -195,18 +257,23 @@ public class LeaseManagerImpl implements LeaseManager {
              PreparedStatement st = connection.prepareStatement(
                      "SELECT id, carId, customerId, startTime, expectedEndTime, realEndTime, price, fee FROM lease")) {
 
-            ResultSet rs = st.executeQuery();
-
-            List<Lease> retrievedLeases = new ArrayList<>();
-
-            while (rs.next()) {
-                retrievedLeases.add(fillLeaseFromResultSet(rs));
-            }
-            return retrievedLeases;
+            return executeFindQuery(st);
 
         } catch (SQLException ex) {
             throw new DBException("Error when retrieving list of all leases", ex);
         }
+    }
+
+    private List<Lease> executeFindQuery(PreparedStatement st) throws SQLException {
+        ResultSet rs = st.executeQuery();
+
+        List<Lease> retrievedLeases = new ArrayList<>();
+
+        while (rs.next()) {
+            Lease lease = fillLeaseFromResultSet(rs);
+            retrievedLeases.add(lease);
+        }
+        return retrievedLeases;
     }
 
     private void validate(Lease lease) {
