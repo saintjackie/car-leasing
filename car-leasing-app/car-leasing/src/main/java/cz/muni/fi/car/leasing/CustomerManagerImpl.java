@@ -2,6 +2,7 @@ package cz.muni.fi.car.leasing;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,18 +140,55 @@ public class CustomerManagerImpl implements CustomerManager {
 
             st.setString(1, name);
 
-            ResultSet rs = st.executeQuery();
-
-            List<Customer> retrievedCustomers = new ArrayList<>();
-
-            while (rs.next()) {
-                Customer customer = fillCustomerFromResultSet(rs);
-                retrievedCustomers.add(customer);
-            }
-            return retrievedCustomers;
+            return executeFindQuery(st);
 
         } catch (SQLException ex) {
-            throw new DBException("Error when retrieving customer with following name: " + name, ex);
+            throw new DBException("Error when retrieving customers with following name: " + name, ex);
+        }
+    }
+
+    @Override
+    public List<Customer> findByPhoneNumber(String phoneNumber) throws DBException {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT id, full_name, phone, birth_date, address FROM customer WHERE phone = ?")) {
+
+            st.setString(1, phoneNumber);
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving customers with following phone number: " + phoneNumber, ex);
+        }
+    }
+
+    @Override
+    public List<Customer> findByBirthDate(LocalDate birthDate) throws DBException {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT id, full_name, phone, birth_date, address FROM customer WHERE birth_date = ?")) {
+
+            st.setDate(1, Date.valueOf(birthDate));
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving customers with following birth date: " + birthDate, ex);
+        }
+    }
+
+    @Override
+    public List<Customer> findByAddress(String address) throws DBException {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT id, full_name, phone, birth_date, address FROM customer WHERE address = ?")) {
+
+            st.setString(1, address);
+
+            return executeFindQuery(st);
+
+        } catch (SQLException ex) {
+            throw new DBException("Error when retrieving customers with following address: " + address, ex);
         }
     }
 
@@ -172,6 +210,18 @@ public class CustomerManagerImpl implements CustomerManager {
         } catch (SQLException ex) {
             throw new DBException("Error when retrieving list of all customers", ex);
         }
+    }
+
+    private List<Customer> executeFindQuery(PreparedStatement st) throws SQLException {
+        ResultSet rs = st.executeQuery();
+
+        List<Customer> retrievedCustomers = new ArrayList<>();
+
+        while (rs.next()) {
+            Customer customer = fillCustomerFromResultSet(rs);
+            retrievedCustomers.add(customer);
+        }
+        return retrievedCustomers;
     }
 
     private void validate(Customer customer) throws IllegalArgumentException {

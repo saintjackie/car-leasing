@@ -160,6 +160,76 @@ public class CustomerManagerTest {
     }
 
     @Test
+    public void testFindByPhoneNumber() throws Exception {
+        Customer customer = newCustomerInstance("Jane", "Some address", LocalDate.of(1994, Month.AUGUST, 6), "1053");
+        Customer customer2 = newCustomerInstance("Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
+        customerManager.create(customer);
+        customerManager.create(customer2);
+
+        List<Customer> retrievedCustomerList = customerManager.findByPhoneNumber(customer.getPhoneNumber());
+        List<Customer> expectedCustomerList = new ArrayList<>();
+        expectedCustomerList.add(customer);
+
+        Collections.sort(retrievedCustomerList, idComparator);
+        Collections.sort(expectedCustomerList, idComparator);
+
+        assertThat("Expected customers were not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
+    }
+
+    @Test
+    public void testFindByWrongPhoneNumber() {
+        List<Customer> customerList = customerManager.findByPhoneNumber("Definitely not a phone number");
+        assertThat("Expected empty list", true, is(customerList.isEmpty()));
+    }
+
+    @Test
+    public void testFindByBirthDate() throws Exception {
+        Customer customer = newCustomerInstance("Jane", "Some address", LocalDate.of(1994, Month.AUGUST, 6), "1053");
+        Customer customer2 = newCustomerInstance("Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
+        customerManager.create(customer);
+        customerManager.create(customer2);
+
+        List<Customer> retrievedCustomerList = customerManager.findByBirthDate(customer.getBirthDate());
+        List<Customer> expectedCustomerList = new ArrayList<>();
+        expectedCustomerList.add(customer);
+
+        Collections.sort(retrievedCustomerList, idComparator);
+        Collections.sort(expectedCustomerList, idComparator);
+
+        assertThat("Expected customers were not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
+    }
+
+    @Test
+    public void testFindByWrongBirthDate() {
+        List<Customer> customerList = customerManager.findByBirthDate(LocalDate.now());
+        assertThat("Expected empty list", true, is(customerList.isEmpty()));
+    }
+
+    @Test
+    public void testFindByAddress() throws Exception {
+        Customer customer = newCustomerInstance("Jane", "Some address", LocalDate.of(1994, Month.AUGUST, 6), "1053");
+        Customer customer2 = newCustomerInstance("Franta Brambora", "Some address", LocalDate.now(), "0123456789");
+        customerManager.create(customer);
+        customerManager.create(customer2);
+
+        List<Customer> retrievedCustomerList = customerManager.findByAddress(customer.getAddress());
+        List<Customer> expectedCustomerList = new ArrayList<>();
+        expectedCustomerList.add(customer);
+        expectedCustomerList.add(customer2);
+
+        Collections.sort(retrievedCustomerList, idComparator);
+        Collections.sort(expectedCustomerList, idComparator);
+
+        assertThat("Expected customers were not retrieved", expectedCustomerList, is(equalTo(retrievedCustomerList)));
+    }
+
+    @Test
+    public void testFindByWrongAddress() {
+        List<Customer> customerList = customerManager.findByAddress("Definitely not an address");
+        assertThat("Expected empty list", true, is(customerList.isEmpty()));
+    }
+
+    @Test
     public void testFindAll() throws Exception {
         Customer customer = newCustomerInstance("Franta Brambora", "V hospode 4", LocalDate.now(), "0123456789");
         Customer customer2 = newCustomerInstance(customer.getFullName(), "Some address",
