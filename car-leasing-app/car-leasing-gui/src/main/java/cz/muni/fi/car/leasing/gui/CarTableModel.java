@@ -39,15 +39,15 @@ public class CarTableModel extends AbstractTableModel{
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return "Type";
+                return texts.getString("type");
             case 1:
-                return "Vendor";
+                return texts.getString("vendor");
             case 2:
-                return "ModelYear";
+                return texts.getString("modelYear");
             case 3:
-                return "Seats";
+                return texts.getString("seats");
             case 4:
-                return "RegistrationPlate";
+                return texts.getString("registrationPlate");
             default:
                 throw new IllegalArgumentException("columnIndex");
         }
