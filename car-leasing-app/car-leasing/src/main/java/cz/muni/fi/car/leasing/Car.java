@@ -86,6 +86,23 @@ public class Car {
         }
         return true;
     }
+    
+//    @Override
+//    public String toString() {
+//        return "Car{"+
+//                "id=" + id +
+//                ", type='" + type + '\'' +
+//                ", vendor='" + vendor + '\'' +
+//                ", modelYear='" + modelYear + '\'' +
+//                ", seats='" + seats + '\'' +
+//                ", registrationPlate='" + registrationPlate + '\'' +
+//                "}";
+//    }
+    @Override
+    public String toString(){
+        return type + ", " + vendor +", "+modelYear+
+                ", "+seats+", "+registrationPlate;
+    }
 
     
     

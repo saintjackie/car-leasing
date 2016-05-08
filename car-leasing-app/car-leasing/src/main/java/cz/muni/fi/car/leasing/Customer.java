@@ -89,14 +89,18 @@ public class Customer {
         return result;
     }
 
+//    @Override
+//    public String toString() {
+//        return "Customer{" +
+//                "id=" + id +
+//                ", fullName='" + fullName + '\'' +
+//                ", phoneNumber='" + phoneNumber + '\'' +
+//                ", birthDate=" + birthDate +
+//                ", address='" + address + '\'' +
+//                '}';
+//    }
     @Override
-    public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                ", fullName='" + fullName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", birthDate=" + birthDate +
-                ", address='" + address + '\'' +
-                '}';
+    public String toString(){
+        return fullName+", "+phoneNumber+", "+birthDate+", "+address;
     }
 }

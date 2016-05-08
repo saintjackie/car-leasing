@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.car.leasing.gui;
 
-
 import java.util.ResourceBundle;
+import javax.swing.JDialog;
+import javax.swing.ListSelectionModel;
 
 /**
  *
- * @author xholy1
+ * @author Jakub Holy
  */
 public class MainFrame extends javax.swing.JFrame {
 
@@ -21,6 +17,15 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
          jTabbedPane1.setTitleAt(0, texts.getString("cars"));
+         jTabbedPane1.setTitleAt(1, texts.getString("customers"));
+         jTabbedPane1.setTitleAt(2, texts.getString("leasings"));
+         
+         jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+         jTable2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+         jTable3.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+         
+         this.setLocationRelativeTo(null);
+         
     }
 
     /**
@@ -32,21 +37,18 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane3 = new javax.swing.JTabbedPane();
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        jPopupMenu1 = new javax.swing.JPopupMenu();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jScrollPane6 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
         jToolBar1 = new javax.swing.JToolBar();
-        jButton3 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable3 = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -58,78 +60,56 @@ public class MainFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Výpujčka aut");
+        setPreferredSize(new java.awt.Dimension(800, 600));
         setSize(new java.awt.Dimension(800, 600));
-
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texts"); // NOI18N
-        jTabbedPane1.setName(bundle.getString("cars")); // NOI18N
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane2.setViewportView(jTable1);
-
-        jTabbedPane1.addTab("", jScrollPane2);
-
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane3.setViewportView(jTable2);
-
-        jTabbedPane1.addTab("Zakaznici", jScrollPane3);
-
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane6.setViewportView(jTable3);
-
-        jTabbedPane1.addTab("Vypujcky", jScrollPane6);
-
-        getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
-        jTabbedPane1.getAccessibleContext().setAccessibleName(bundle.getString("cars")); // NOI18N
 
         jToolBar1.setRollover(true);
 
-        jButton3.setText("Upravit");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texts"); // NOI18N
+        jButton1.setText(bundle.getString("edit")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton1);
+
+        jButton2.setText(bundle.getString("filter")); // NOI18N
+        jToolBar1.add(jButton2);
+
+        jButton3.setText(bundle.getString("cancelFilter")); // NOI18N
         jToolBar1.add(jButton3);
 
-        jButton5.setText("Filtrace");
-        jToolBar1.add(jButton5);
-
-        jButton6.setText("Zrusit filtraci");
-        jToolBar1.add(jButton6);
-
-        jButton1.setText("Pridat");
-        jToolBar1.add(jButton1);
+        jButton4.setText(bundle.getString("add")); // NOI18N
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton4);
 
         getContentPane().add(jToolBar1, java.awt.BorderLayout.PAGE_START);
 
-        jMenu1.setText("Soubor");
+        jTable1.setModel(new CarTableModel(texts));
+        jScrollPane1.setViewportView(jTable1);
 
-        jMenuItem4.setText("Ukoncit");
+        jTabbedPane1.addTab("Auta", jScrollPane1);
+
+        jTable2.setModel(new CustomerTableModel(texts));
+        jScrollPane2.setViewportView(jTable2);
+
+        jTabbedPane1.addTab("Zakaznici", jScrollPane2);
+
+        jTable3.setModel(new LeaseTableModel((CarTableModel)jTable1.getModel(),(CustomerTableModel)jTable2.getModel(),texts));
+        jScrollPane3.setViewportView(jTable3);
+
+        jTabbedPane1.addTab("Pronajem", jScrollPane3);
+
+        getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+
+        jMenu1.setText(bundle.getString("file")); // NOI18N
+
+        jMenuItem4.setText(bundle.getString("exit")); // NOI18N
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem4ActionPerformed(evt);
@@ -139,18 +119,28 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Akce");
+        jMenu2.setText(bundle.getString("action")); // NOI18N
 
-        jMenuItem1.setText("Upravit");
+        jMenuItem1.setText(bundle.getString("edit")); // NOI18N
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem1);
 
-        jMenuItem2.setText("Filtrace");
+        jMenuItem2.setText(bundle.getString("filter")); // NOI18N
         jMenu2.add(jMenuItem2);
 
-        jMenuItem6.setText("Zrusit filtraci");
+        jMenuItem6.setText(bundle.getString("cancelFilter")); // NOI18N
         jMenu2.add(jMenuItem6);
 
-        jMenuItem7.setText("Pridat");
+        jMenuItem7.setText(bundle.getString("add")); // NOI18N
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem7);
 
         jMenuBar1.add(jMenu2);
@@ -166,6 +156,104 @@ public class MainFrame extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        switch(jTabbedPane1.getSelectedIndex()){
+            case 0: 
+                newAddJDialog(0);
+                break;
+            case 1:
+                newAddJDialog(1);
+                break;
+            case 2:
+                newAddJDialog(2);
+                break;
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void newAddJDialog(int tabbedPaneIndex){ //0=car,1=customer,2=lease
+        JDialog jDialog = new JDialog(this,true);
+        switch(tabbedPaneIndex){
+            case 0: //car pane
+                jDialog.setTitle(texts.getString("addCar"));
+                jDialog.getContentPane().add(new CarPopUp(0,null,texts,jTable1));
+                break;
+            case 1: //customer pane
+                jDialog.setTitle(texts.getString("addCustomer"));
+                jDialog.getContentPane().add(new CustomerPopUp(0,null,texts,jTable2));
+                break;
+            case 2: //lease pane
+                jDialog.setTitle(texts.getString("addLease"));
+                jDialog.getContentPane().add(new LeasePopUp(0,null,texts,jTable3));
+                break;                        
+        }
+   
+        jDialog.pack();
+        jDialog.setLocationRelativeTo(null);
+        jDialog.setResizable(false);
+        jDialog.setVisible(true);
+    }
+    
+    
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        switch(jTabbedPane1.getSelectedIndex()){
+            case 0:
+                int carSelectedRow = jTable1.getSelectedRow();
+                if(carSelectedRow == -1) //no car selected
+                    return;                
+                newEditJDialog(0,carSelectedRow);
+                break;
+            case 1:                
+                int customerSelectedRow = jTable2.getSelectedRow();
+                if(customerSelectedRow == -1) //no customer selected
+                    return; 
+                newEditJDialog(1,customerSelectedRow);
+                break;
+            case 2:
+                int leaseSelectedRow = jTable3.getSelectedRow();
+                if(leaseSelectedRow == -1) //no lease selected
+                    return;
+                newEditJDialog(2,leaseSelectedRow);
+                break;
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        jButton1ActionPerformed(evt);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        jButton4ActionPerformed(evt);
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+    private void newEditJDialog(int tabbedPaneIndex, int selectedRow) {
+        JDialog jDialog = new JDialog(this,true);
+        switch(tabbedPaneIndex){
+            case 0: //car pane
+                jDialog.setTitle(texts.getString("editCar"));
+                jDialog.getContentPane().add(new CarPopUp(1,
+                        ((CarTableModel)jTable1.getModel()).getSelectedCar(selectedRow),
+                        texts,jTable1));
+                break;
+            case 1: //customer pane
+                jDialog.setTitle(texts.getString("editCustomer"));
+                jDialog.getContentPane().add(new CustomerPopUp(1,
+                        ((CustomerTableModel)jTable2.getModel()).getSelectedCustomer(selectedRow),
+                        texts,jTable2));
+                break;
+            case 2: //lease pane
+                jDialog.setTitle(texts.getString("editLease"));                                                
+                jDialog.getContentPane().add(new LeasePopUp(1,
+                        ((LeaseTableModel)jTable3.getModel()).getSelectedLease(selectedRow),
+                        texts,jTable3));
+                break;                        
+        }
+   
+        jDialog.pack();
+        jDialog.setLocationRelativeTo(null);
+        jDialog.setResizable(false);
+        jDialog.setVisible(true);
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -209,11 +297,10 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -222,12 +309,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
-    private javax.swing.JPopupMenu jPopupMenu1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTabbedPane jTabbedPane3;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
