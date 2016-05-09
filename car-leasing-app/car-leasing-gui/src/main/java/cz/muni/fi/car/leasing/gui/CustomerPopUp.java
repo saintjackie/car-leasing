@@ -1,21 +1,54 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.car.leasing.gui;
+
+import cz.muni.fi.car.leasing.Customer;
+import java.awt.Window;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 
 /**
  *
- * @author xholy1
+ * @author Jackie
  */
 public class CustomerPopUp extends javax.swing.JPanel {
 
-    /**
-     * Creates new form CreateCar
-     */
-    public CustomerPopUp() {
+    private int action; //0=add, 1=edit, 2=filter
+    private Customer customer;
+    private ResourceBundle texts;
+    private JTable table;
+    
+    public CustomerPopUp(int action,Customer customer,ResourceBundle texts,
+            JTable table) {
         initComponents();
+        this.texts = texts;
+        this.table = table;
+        this.action = action;
+        this.customer = customer;
+        switch(action){
+            case 0:
+                jLabel1.setText(texts.getString("addCustomer"));
+                break;
+            case 1:
+                jLabel1.setText(texts.getString("editCustomer"));
+                setTextsFromCustomer(customer);
+                break;
+            case 2: 
+                jLabel1.setText(texts.getString("filterCustomers"));
+                setTextsFromCustomer(customer);
+                break;                
+        }        
+    }
+    
+    private void setTextsFromCustomer(Customer customer){        
+        jTextField1.setText(customer.getFullName());
+        jTextField2.setText(customer.getPhoneNumber());
+        jTextField3.setText(customer.getBirthDate().toString());
+        jTextArea1.setText(customer.getAddress());
     }
 
     /**
@@ -31,120 +64,234 @@ public class CustomerPopUp extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jTextField2 = new javax.swing.JTextField();
-        jSpinner1 = new javax.swing.JSpinner();
-        jLabel5 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
-        jLabel1.setText("Zakaznik:");
-
-        jLabel2.setText("Vyrobce:");
-
-        jLabel3.setText("Typ:");
-
-        jLabel4.setText("Pocet sedadel:");
-
-        jTextField1.setText("jTextField1");
-
-        jTextField2.setText("jTextField2");
-
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(0, 0, 99, 1));
-
-        jLabel5.setText("SPZ:");
-
-        jTextField3.setText("jTextField3");
-
-        jLabel6.setText("Datum vyroby:");
-
-        jTextField4.setText("jTextField4");
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Pridat zakaznika");
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texts"); // NOI18N
-        jButton1.setLabel(bundle.getString("cars")); // NOI18N
+        jLabel2.setText(bundle.getString("fullName")); // NOI18N
+
+        jLabel3.setText(bundle.getString("phoneNumber")); // NOI18N
+
+        jLabel4.setText(bundle.getString("birthDate")); // NOI18N
+
+        jLabel5.setText(bundle.getString("address")); // NOI18N
+
+        jTextField3.setToolTipText(bundle.getString("toolTipBirthDate")); // NOI18N
+
+        jTextArea1.setColumns(18);
+        jTextArea1.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        jTextArea1.setRows(4);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jButton1.setText(bundle.getString("ok")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText(bundle.getString("cancel")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel1)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4))
-                                .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))
-                            .addGap(7, 7, 7)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
-                                    .addComponent(jTextField2))))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(5, 5, 5)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel6)
-                                .addComponent(jLabel5))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGap(7, 7, 7)
-                                    .addComponent(jTextField4))))))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jTextField3)
+                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
+                                        .addComponent(jTextField1)))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addGap(19, 19, 19)
+                .addGap(21, 21, 21)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        switch(action){
+            case 0:
+                addNewCustomer();
+                break;
+            case 1:
+                editCustomer();
+                break;
+            case 2: 
+                filterCustomer();
+                break;
+        } 
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        Window win = SwingUtilities.getWindowAncestor(this);
+        win.dispose();        
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
     // End of variables declaration//GEN-END:variables
+
+    private void addNewCustomer() {
+        customer = new Customer();
+        //check text input
+        List<String> errors = checkCorrectnessOfTextInput();
+        if(!errors.isEmpty()){
+            JOptionPane.showMessageDialog(null,
+                    texts.getString("fillUpAllFields") +": "+
+                            errors.toString(),texts.getString("fillUpAllFields"),
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        fillUpCustomerFromTextInput();
+        
+        //add to table model
+        ((CustomerTableModel)table.getModel()).addCustomer(customer);
+        Window win = SwingUtilities.getWindowAncestor(this);
+        win.dispose();        
+    }
+    
+    private List<String> checkCorrectnessOfTextInput(){
+        List<String> errors = new ArrayList<>();
+
+        if(jTextField1.getText().trim().isEmpty()){
+            errors.add(jLabel2.getText());
+        }
+        if(jTextField2.getText().trim().isEmpty()){
+            errors.add(jLabel3.getText());
+        }
+        if(!isBirthDateFormatCorrect(jTextField3.getText().trim())){            
+            errors.add(jLabel4.getText());
+        }
+        if(jTextArea1.getText().trim().isEmpty()){
+            errors.add(jLabel5.getText());
+        }        
+        return errors;
+    }
+    
+    private boolean isBirthDateFormatCorrect(String birthDate){
+        if(!birthDate.matches("\\d{4}-\\d{2}-\\d{2}")){
+            return false;
+        }
+        try {
+            LocalDate.parse(birthDate);
+        } catch (DateTimeParseException ex) {
+            return false;
+        }
+        return true;        
+    }
+    private void fillUpCustomerFromTextInput(){
+        customer.setFullName(jTextField1.getText().trim());
+        customer.setPhoneNumber(jTextField2.getText().trim());
+        customer.setBirthDate(LocalDate.parse(jTextField3.getText().trim()));
+        customer.setAddress(jTextArea1.getText().trim());
+    }
+    private void editCustomer() {        
+        List<String> errors = checkCorrectnessOfTextInput();
+        if(!errors.isEmpty()){
+            JOptionPane.showMessageDialog(null,
+                    texts.getString("fillUpAllFields") +": "+
+                            errors.toString(),texts.getString("fillUpAllFields"),
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        fillUpCustomerFromTextInput();     
+        int selectedRow = table.getSelectedRow();
+        ((CustomerTableModel)table.getModel()).fireTableRowsUpdated(selectedRow,selectedRow);
+        
+        Window win = SwingUtilities.getWindowAncestor(this);
+        win.dispose();
+    }
+    
+    //filtering is handled in table model
+    private void filterCustomer() {        
+        //check correct birth date format
+        if(!isBirthDateFormatCorrect(jTextField3.getText().trim())){
+            JOptionPane.showMessageDialog(null,
+                    texts.getString("fillUpAllFields") +": ["+
+                            jLabel4.getText()+"]",texts.getString("fillUpAllFields"),
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        fillUpCustomerFromTextInput();
+        //table model filter
+        //TODO
+        
+        Window win = SwingUtilities.getWindowAncestor(this);
+        win.dispose();
+    }
 }
