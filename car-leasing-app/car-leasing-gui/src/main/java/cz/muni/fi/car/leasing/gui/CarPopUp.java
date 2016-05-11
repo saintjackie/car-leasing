@@ -16,28 +16,28 @@ import javax.swing.SwingUtilities;
  */
 public class CarPopUp extends javax.swing.JPanel {
 
-    private int action; //0=create, 1=update, 2=filter
+    private String action;
     private Car car;
     private ResourceBundle texts;
     private JTable table;
     /**
      * Creates new form NewJPanel
      */
-    public CarPopUp(int action,Car car,ResourceBundle texts,JTable table) {
+    public CarPopUp(String action,Car car,ResourceBundle texts,JTable table) {
         initComponents();
         this.action = action;
         this.car = car;
         this.texts = texts;
         this.table = table;        
         switch(action){
-            case 0:
+            case "add":
                 jLabel1.setText(texts.getString("addCar"));
                 break;
-            case 1:
+            case "edit":
                 jLabel1.setText(texts.getString("editCar"));
                 setTextsFromCar(car);
                 break;
-            case 2: 
+            case "filter": 
                 jLabel1.setText(texts.getString("filterCars"));
                 setTextsFromCar(car);
                 break;                
@@ -47,8 +47,12 @@ public class CarPopUp extends javax.swing.JPanel {
     private void setTextsFromCar(Car car){
         jTextField1.setText(car.getType());
         jTextField2.setText(car.getVendor());
-        jSpinner1.setValue(car.getSeats());
-        jTextField3.setText(car.getModelYear().toString());
+        if(car.getSeats() != null)
+            jSpinner1.setValue(car.getSeats());
+        else
+            jSpinner1.setValue(0);
+        if(car.getModelYear() != null)
+            jTextField3.setText(car.getModelYear().toString());
         jTextField4.setText(car.getRegistrationPlate());
     }
 
@@ -176,13 +180,13 @@ public class CarPopUp extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         switch(action){
-            case 0:
+            case "add":
                 addNewCar();
                 break;
-            case 1:
+            case "edit":
                 editCar();
                 break;
-            case 2: 
+            case "filter": 
                 filterCar();
                 break;
         } 
@@ -241,18 +245,25 @@ public class CarPopUp extends javax.swing.JPanel {
         }
         fillUpCarFromTextInput();
         int selectedRow = table.getSelectedRow();
-        ((CarTableModel)table.getModel()).fireTableRowsUpdated(selectedRow,selectedRow);
+        ((CarTableModel)table.getModel()).updateCar(car, selectedRow);
         
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
     }
 
     private void filterCar() {
-        fillUpCarFromTextInput();
+        if(!jTextField3.getText().trim().isEmpty() &&!jTextField3.getText().trim().matches("\\d{4}")){
+            JOptionPane.showMessageDialog(null,
+                    texts.getString("fillUpAllFields") +": "+
+                            jLabel5.getText(),texts.getString("fillUpAllFields"),
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        fillUpCarForFilteringFromTextInput();
         //table model filter
-        //TODO
-        
-         Window win = SwingUtilities.getWindowAncestor(this);
+        ((CarTableModel) table.getModel()).filterCars();
+        table.updateUI();
+        Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
     }
 
@@ -288,5 +299,29 @@ public class CarPopUp extends javax.swing.JPanel {
         car.setSeats((int)jSpinner1.getValue());
         car.setModelYear(Integer.valueOf(jTextField3.getText().trim()));
         car.setRegistrationPlate(jTextField4.getText().trim());
+    }
+    
+    private void fillUpCarForFilteringFromTextInput(){
+        if(!jTextField1.getText().trim().isEmpty())
+            car.setType(jTextField1.getText().trim());
+        else
+            car.setType(null);
+        if(!jTextField2.getText().trim().isEmpty())
+            car.setVendor(jTextField2.getText().trim());
+        else
+            car.setVendor(null);
+        if((int)jSpinner1.getValue() != 0)
+            car.setSeats((int)jSpinner1.getValue());
+        else
+            car.setSeats(null);
+        if(!jTextField3.getText().trim().isEmpty() && jTextField3.getText().trim().matches("\\d{4}"))
+            car.setModelYear(Integer.valueOf(jTextField3.getText().trim()));
+        else
+            car.setModelYear(null);
+        if(!jTextField4.getText().trim().isEmpty())
+            car.setRegistrationPlate(jTextField4.getText().trim());
+        else
+            car.setRegistrationPlate(null);
+        
     }
 }

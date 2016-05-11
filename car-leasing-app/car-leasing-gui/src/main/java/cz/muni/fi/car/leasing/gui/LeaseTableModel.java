@@ -1,11 +1,14 @@
 package cz.muni.fi.car.leasing.gui;
 
 import cz.muni.fi.car.leasing.Lease;
+import cz.muni.fi.car.leasing.LeaseManager;
+import cz.muni.fi.car.leasing.LeaseManagerImpl;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javax.sql.DataSource;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -18,13 +21,17 @@ public class LeaseTableModel extends AbstractTableModel{
     private final ResourceBundle texts;
     private final CarTableModel carsModel;
     private final CustomerTableModel customersModel;
+    private final LeaseManager leaseManager;
+    private final Lease filterLease = new Lease();
+    private boolean filtered=false;
     
     public LeaseTableModel(CarTableModel carsModel, CustomerTableModel customersModel,
-            ResourceBundle texts){
+            ResourceBundle texts,DataSource dataSource){
         this.texts = texts;
         this.carsModel = carsModel;
         this.customersModel = customersModel;
-        addExampleLease();
+        leaseManager = new LeaseManagerImpl(dataSource);
+        leases.addAll(leaseManager.findAll());
     }
 
     @Override
@@ -98,34 +105,104 @@ public class LeaseTableModel extends AbstractTableModel{
     }
     
     public void addLease(Lease lease){
+        leaseManager.create(lease);
         leases.add(lease);
         int lastRow = leases.size() - 1;
         fireTableRowsInserted(lastRow, lastRow);
     }
     
-    public Lease getSelectedLease(int row){
-        return leases.get(row);
+    public void updateLease(Lease lease, int selectedRow){
+        leaseManager.update(lease);
+        fireTableRowsUpdated(selectedRow, selectedRow);
     }
     
-    private void addExampleLease(){
-        Lease l = new Lease();
-        l.setCarId(1L);
-        l.setCustomerId(11L);
-        l.setStartTime(LocalDateTime.parse("2001-05-06T10:00"));
-        l.setExpectedEndTime(LocalDateTime.parse("2001-05-08T10:00"));
-        l.setRealEndTime(LocalDateTime.parse("2001-05-08T13:00"));
-        l.setPrice(new BigDecimal("2000"));
-        l.setFee(new BigDecimal("200"));
-        addLease(l);
-        l = new Lease();
-        l.setCarId(2L);
-        l.setCustomerId(12L);
-        l.setStartTime(LocalDateTime.parse("2001-05-06T10:00"));
-        l.setExpectedEndTime(LocalDateTime.parse("2001-05-08T10:00"));
-        l.setRealEndTime(LocalDateTime.parse("2001-05-08T13:00"));
-        l.setPrice(new BigDecimal("4500"));
-        l.setFee(new BigDecimal("499"));
-        addLease(l);
+    public void filterLeases(){
+        List<Lease> filteredLeases = null;
+        //carId
+        if(filterLease.getCarId() != null){
+            filteredLeases = leaseManager.findByCar(filterLease.getCarId());
+        }
+        //customerId
+        if(filterLease.getCustomerId() != null){
+            if(filteredLeases == null)
+                filteredLeases = leaseManager.findByCustomer(filterLease.getCustomerId());
+            else
+                filteredLeases.retainAll(leaseManager.findByCustomer(filterLease.getCustomerId()));
+        }
+        //startTime
+        if(filterLease.getStartTime() != null){
+            if(filteredLeases == null)
+                filteredLeases = leaseManager.findByStartTime(filterLease.getStartTime());
+            else
+                filteredLeases.retainAll(leaseManager.findByStartTime(filterLease.getStartTime()));
+        }
+        //expectedEndTime
+        if(filterLease.getExpectedEndTime() != null){
+            if(filteredLeases == null)
+                filteredLeases = leaseManager.findByExpectedEndTime(filterLease.getExpectedEndTime());
+            else
+                filteredLeases.retainAll(leaseManager.findByExpectedEndTime(filterLease.getExpectedEndTime()));
+        }
+        //realEndTime
+        if(filterLease.getRealEndTime() != null){
+            if(filteredLeases == null)
+                filteredLeases = leaseManager.findByRealEndTime(filterLease.getRealEndTime());
+            else
+                filteredLeases.retainAll(leaseManager.findByRealEndTime(filterLease.getRealEndTime()));
+        }
+        //price
+        if(filterLease.getPrice() != null){
+            if(filteredLeases == null)
+                filteredLeases = leaseManager.findByPrice(filterLease.getPrice());
+            else
+                filteredLeases.retainAll(leaseManager.findByPrice(filterLease.getPrice()));
+        }
+        //fee
+        if(filterLease.getFee() != null){
+            if(filteredLeases == null)
+                filteredLeases = leaseManager.findByFee(filterLease.getFee());
+            else
+                filteredLeases.retainAll(leaseManager.findByFee(filterLease.getFee()));
+        }
         
+        if(filteredLeases !=null){
+            leases.clear();
+            leases.addAll(filteredLeases);
+            filtered = true;
+        }else{
+            refresh();
+            filtered = false;
+        }
     }
+    
+    
+    
+    public void removeFilter(){
+        refresh();
+        filterLease.setCarId(null);
+        filterLease.setCustomerId(null);
+        filterLease.setStartTime(null);
+        filterLease.setExpectedEndTime(null);
+        filterLease.setRealEndTime(null);
+        filterLease.setPrice(null);
+        filterLease.setFee(null);
+        filtered = false;        
+    }
+    
+    public boolean isFiltered(){
+        return filtered;
+    }
+    
+    public Lease getFilterLease(){
+        return filterLease;
+    }
+    
+    public void refresh(){
+        leases.clear();
+        leases.addAll(leaseManager.findAll());
+    }
+    
+    public Lease getSelectedLease(int row){
+        return leases.get(row);
+    }        
 }

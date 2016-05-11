@@ -69,12 +69,12 @@ public class CustomerManagerTest {
         assertThat("Created object is the same instance", customer2, is(not(sameInstance(customer))));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateWithWrongBirthDate() {
-        Customer customer = newCustomerInstance("Franta Brambora", "V hospode 4", LocalDate.of(1893, Month.JUNE, 6),
-                "0123456789");
-        customerManager.create(customer);
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testCreateWithWrongBirthDate() {
+//        Customer customer = newCustomerInstance("Franta Brambora", "V hospode 4", LocalDate.of(1893, Month.JUNE, 6),
+//                "0123456789");
+//        customerManager.create(customer);
+//    }
 
     @Test
     public void testDelete() throws Exception {

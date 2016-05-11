@@ -15,6 +15,7 @@ public interface CarManager {
     List<Car> findAll();
     List<Car> findBySeats(Integer seats);
     List<Car> findByVendor(String vendor);
+    List<Car> findByModelYear(Integer year);
     Car findByRegistration(String registrationPlate);
     
 }

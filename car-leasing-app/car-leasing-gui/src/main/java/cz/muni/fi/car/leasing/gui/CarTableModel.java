@@ -2,10 +2,13 @@ package cz.muni.fi.car.leasing.gui;
 
 
 import cz.muni.fi.car.leasing.Car;
+import cz.muni.fi.car.leasing.CarManager;
+import cz.muni.fi.car.leasing.CarManagerImpl;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
+import javax.sql.DataSource;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -16,10 +19,14 @@ public class CarTableModel extends AbstractTableModel{
 
     private final List<Car> cars = new ArrayList<>();
     private final ResourceBundle texts;
+    private final CarManager carManager;
+    private final Car filterCar = new Car();    
+    private boolean filtered = false;
     
-    public CarTableModel(ResourceBundle texts){
-        this.texts = texts;
-        addExampleCars();
+    public CarTableModel(ResourceBundle texts,DataSource dataSource){
+        this.texts = texts;        
+        this.carManager = new CarManagerImpl(dataSource);
+        cars.addAll(carManager.findAll());        
     }
     
     @Override
@@ -83,10 +90,93 @@ public class CarTableModel extends AbstractTableModel{
         }
     }
 
-    public void addCar(Car car){
+    public void addCar(Car car){                
+        carManager.create(car);
         cars.add(car);
         int lastRow = cars.size() - 1;
         fireTableRowsInserted(lastRow, lastRow);
+    }
+    
+    public void filterCars(){       
+        List<Car> filteredCars=null;
+         //helping list, cause if nothing is find, retain wont intersect the list
+        //type
+        if(filterCar.getType() != null){
+           filteredCars = carManager.findByType(filterCar.getType());
+        }
+        //vendor
+        if(filterCar.getVendor() != null){
+            if(filteredCars==null)
+                filteredCars = carManager.findByVendor(filterCar.getVendor());
+            else{
+                filteredCars.retainAll(carManager.findByVendor(filterCar.getVendor()));
+            }
+        }
+        //seats
+        if(filterCar.getSeats() != null && filterCar.getSeats() > 0){
+            if(filteredCars==null)
+                filteredCars = carManager.findBySeats(filterCar.getSeats());
+            else{
+                filteredCars.retainAll(carManager.findBySeats(filterCar.getSeats()));
+            }
+        }
+        //modelYear
+        if(filterCar.getModelYear()!= null){
+            if(filteredCars==null)
+                filteredCars = carManager.findByModelYear(filterCar.getModelYear());
+            else{
+                filteredCars.retainAll(carManager.findByModelYear(filterCar.getModelYear()));               
+            }
+        }        
+        //registrationPlate
+        if(filterCar.getRegistrationPlate() != null){
+            if(filteredCars==null){
+                filteredCars = new ArrayList<>();
+                Car c = carManager.findByRegistration(filterCar.getRegistrationPlate());
+                if(c != null) 
+                    filteredCars.add(c);
+            }            
+            else{
+                filteredCars.retainAll((Collection<?>) carManager.findByRegistration(filterCar.getRegistrationPlate()));
+            }
+        }
+        if(filteredCars!=null){
+            cars.clear();
+            cars.addAll(filteredCars);
+            filtered = true;
+        }else{
+            refresh();
+            filtered = false;
+        }
+    }
+    
+    public void removeFilter(){
+        refresh();
+        filterCar.setType(null);
+        filterCar.setVendor(null);
+        filterCar.setModelYear(null);
+        filterCar.setSeats(null);
+        filterCar.setRegistrationPlate(null);
+        filtered = false;        
+    }
+    
+    public boolean isFiltered(){
+        return filtered;
+    }
+    
+    public Car getFilterCar(){
+        return filterCar;
+    }
+    
+    public void updateCar(Car car, int selectedRow){
+        carManager.update(car);
+        fireTableRowsUpdated(selectedRow,selectedRow);
+    }
+    
+    public void refresh(){
+        cars.clear();
+        cars.addAll(carManager.findAll());
+        fireTableDataChanged();
     }
     
     public Car getSelectedCar(int row){
@@ -101,30 +191,8 @@ public class CarTableModel extends AbstractTableModel{
                 return c;
             }
         }
-        return null;
-    }
-    
-    public List<Car> getCars(){
-        return Collections.unmodifiableList(cars);
-    }
-    
-    private void addExampleCars(){
-        Car c = new Car();
-        c.setId(1L);
-        c.setType("Fabia");
-        c.setModelYear(2009);
-        c.setVendor("Škoda");
-        c.setSeats(5);
-        c.setRegistrationPlate("BKE 4535");
-        addCar(c);
-        c = new Car();
-        c.setId(2L);
-        c.setType("X6");
-        c.setModelYear(2013);
-        c.setVendor("BmW");
-        c.setSeats(5);
-        c.setRegistrationPlate("AND 5632");
-        addCar(c);
-    }
+        //if doesnt find in list cars, search in database
+        return carManager.findById(id);
+    }    
         
 }

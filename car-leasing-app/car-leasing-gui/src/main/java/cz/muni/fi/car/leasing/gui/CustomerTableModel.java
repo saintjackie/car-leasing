@@ -2,11 +2,13 @@
 package cz.muni.fi.car.leasing.gui;
 
 import cz.muni.fi.car.leasing.Customer;
+import cz.muni.fi.car.leasing.CustomerManager;
+import cz.muni.fi.car.leasing.CustomerManagerImpl;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import javax.sql.DataSource;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -17,10 +19,14 @@ public class CustomerTableModel extends AbstractTableModel{
     
     private final List<Customer> customers = new ArrayList<>();
     private final ResourceBundle texts;
+    private final CustomerManager customerManager;
+    private final Customer filterCustomer=new Customer();
+    private boolean filtered=false;
     
-    public CustomerTableModel(ResourceBundle texts){
+    public CustomerTableModel(ResourceBundle texts,DataSource dataSource){
         this.texts = texts;  
-        addExampleCustomers();
+        customerManager =  new CustomerManagerImpl(dataSource);
+        customers.addAll(customerManager.findAll());
     }
 
     @Override
@@ -81,10 +87,79 @@ public class CustomerTableModel extends AbstractTableModel{
     }
     
     public void addCustomer(Customer customer){
+        customerManager.create(customer);
+        
         customers.add(customer);
         int lastRow = customers.size() - 1;
         fireTableRowsInserted(lastRow, lastRow);
     }
+    
+    public void updateCustomer(Customer customer, int selectedRow){
+        customerManager.update(customer);
+        fireTableRowsUpdated(selectedRow,selectedRow);
+    }
+    
+    public void filterCustomers(){
+        List<Customer> filteredCustomers = null;
+        //fullname
+        if(filterCustomer.getFullName()!= null){
+            filteredCustomers = customerManager.findByName(filterCustomer.getFullName());                
+        }
+        //phoneNumber
+        if(filterCustomer.getPhoneNumber()!= null){
+            if(filteredCustomers == null)
+                filteredCustomers = customerManager.findByPhoneNumber(filterCustomer.getPhoneNumber());
+            else
+                filteredCustomers.retainAll(customerManager.findByPhoneNumber(filterCustomer.getPhoneNumber()));
+        }
+        //birthDate
+        if(filterCustomer.getBirthDate()!= null){
+            if(filteredCustomers == null)
+                filteredCustomers = customerManager.findByBirthDate(filterCustomer.getBirthDate());
+            else
+                filteredCustomers.retainAll(customerManager.findByBirthDate(filterCustomer.getBirthDate()));
+        }
+        //address
+        if(filterCustomer.getAddress() != null){
+            if(filteredCustomers == null)
+                filteredCustomers = customerManager.findByAddress(filterCustomer.getAddress());
+            else
+                filteredCustomers.retainAll(customerManager.findByAddress(filterCustomer.getAddress()));
+        }
+        
+        if(filteredCustomers != null){
+            customers.clear();
+            customers.addAll(filteredCustomers);
+            filtered = true;
+        }else{
+            refresh();
+            filtered = false;
+        }
+            
+    }
+    
+    public void removeFilter(){
+        refresh();
+        filterCustomer.setFullName(null);
+        filterCustomer.setPhoneNumber(null);
+        filterCustomer.setBirthDate(null);
+        filterCustomer.setAddress(null);
+        filtered = false;        
+    }
+    
+    public boolean isFiltered(){
+        return filtered;
+    }
+    
+    public Customer getFilterCustomer(){
+        return filterCustomer;
+    }
+    
+    public void refresh(){
+        customers.clear();
+        customers.addAll(customerManager.findAll());
+    }
+    
     public Customer getSelectedCustomer(int row){
         if(row>=customers.size() || row <0)
             return null;
@@ -97,29 +172,7 @@ public class CustomerTableModel extends AbstractTableModel{
                 return c;
             }
         }
-        return null;
-    }
-    
-    public List<Customer> getCustomers(){
-        return Collections.unmodifiableList(customers);
-    }
-    
-    
-    private void addExampleCustomers(){
-        Customer c = new Customer();
-        c.setId(11L);
-        c.setFullName("Jarda Nový");
-        c.setPhoneNumber("516 456 678");
-        c.setBirthDate(LocalDate.parse("1979-06-19"));
-        c.setAddress("Kryštofova 124, Olomouc");
-        addCustomer(c);
-        c = new Customer();
-        c.setId(12L);
-        c.setFullName("Milada Nová");
-        c.setPhoneNumber("516 123 987");
-        c.setBirthDate(LocalDate.parse("1984-12-30"));
-        c.setAddress("Úzká 987, Brno");
-        addCustomer(c);
-    }
+        return customerManager.findById(id);
+    }        
     
 }

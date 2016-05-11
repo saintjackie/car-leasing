@@ -248,6 +248,28 @@ public class CarManagerImpl implements CarManager {
             return null;
         }
     }
+    
+    @Override
+    public List<Car> findByModelYear(Integer year) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
+                        "SELECT id,type,vendor,modelYear,seats,registrationPlate FROM CAR WHERE modelYear = ?")) {
+
+            st.setInt(1, year);
+            ResultSet rs = st.executeQuery();
+            List<Car> cars = new ArrayList<>();
+            while (rs.next()) {
+                cars.add(resultSetToCar(rs));
+            }
+            log.info("Retrieved cars with modelYear number of {}", year);
+            return cars;
+
+        } catch (SQLException ex) {
+            log.error("Error while retrieving cars with modelYear number of {}", year, ex);
+            return null;
+        }
+    }
 
     @Override
     public List<Car> findByVendor(String vendor) {

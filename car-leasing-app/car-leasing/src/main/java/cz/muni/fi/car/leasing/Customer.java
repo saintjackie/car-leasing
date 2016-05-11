@@ -30,9 +30,9 @@ public class Customer {
     }
 
     public void setFullName(String fullName) {
-        if(fullName == null) {
-            throw new IllegalArgumentException("Every customer should have a proper name, not null");
-        }
+//        if(fullName == null) {
+//            throw new IllegalArgumentException("Every customer should have a proper name, not null");
+//        }
         this.fullName = fullName;
     }
 
@@ -49,9 +49,9 @@ public class Customer {
     }
 
     public void setBirthDate(LocalDate birthDate) {
-        if(birthDate.isBefore(LocalDate.of(1900, 1, 1))) {
-            throw new IllegalArgumentException("Anyone born before year 1900 is probably not suitable to drive a car");
-        }
+//        if(birthDate.isBefore(LocalDate.of(1900, 1, 1))) {
+//            throw new IllegalArgumentException("Anyone born before year 1900 is probably not suitable to drive a car");
+//        }
         this.birthDate = birthDate;
     }
 

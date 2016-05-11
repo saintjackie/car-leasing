@@ -2,7 +2,6 @@ package cz.muni.fi.car.leasing;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;

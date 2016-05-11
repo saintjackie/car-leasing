@@ -1,16 +1,20 @@
 package cz.muni.fi.car.leasing.gui;
 
 import cz.muni.fi.car.leasing.Car;
+import cz.muni.fi.car.leasing.CarManager;
+import cz.muni.fi.car.leasing.CarManagerImpl;
 import cz.muni.fi.car.leasing.Customer;
+import cz.muni.fi.car.leasing.CustomerManager;
+import cz.muni.fi.car.leasing.CustomerManagerImpl;
 import cz.muni.fi.car.leasing.Lease;
 import java.awt.Window;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javax.sql.DataSource;
 import javax.swing.AbstractListModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -22,42 +26,43 @@ import javax.swing.SwingUtilities;
  */
 public class LeasePopUp extends javax.swing.JPanel {
 
-    private int action;
+    private String action;
     private Lease lease;
     private ResourceBundle texts;
-    private JTable leaseTable;
+    private JTable table;
     private CustomerListModel customersModel = new CustomerListModel();
     private CarListModel carsModel = new CarListModel();
     
     /**
      * Creates new form LeasePopUp
      */
-    public LeasePopUp(int action,Lease lease,
-            ResourceBundle texts,JTable leaseTable) {
+    public LeasePopUp(String action,Lease lease,
+            ResourceBundle texts,JTable leaseTable,DataSource dataSource) {
         initComponents();
         this.action = action;
         this.lease = lease;
         this.texts = texts;
-        this.leaseTable = leaseTable;
-        
+        this.table = leaseTable;
+        CustomerManager customerManager = new CustomerManagerImpl(dataSource);
+        CarManager carManager = new CarManagerImpl(dataSource);
         jList1.setModel(customersModel);
         jList2.setModel(carsModel);  
         customersModel.addCustomer(null);
         carsModel.addCar(null);
         //examples
-        addExampleCars();
-        addExampleCustomers();
+        customersModel.addListOfCustomers(customerManager.findAll());
+        carsModel.addListOfCars(carManager.findAll());
         
         switch(action){
-            case 0:
+            case "add":
                 jLabel1.setText(texts.getString("addLease"));
                 break;
-            case 1:
+            case "edit":
                 jLabel1.setText(texts.getString("editLease"));
                 setTextsFromLease(lease);
                 setSelectedCarAndCustomer(lease.getCustomerId(),lease.getCarId());
                 break;
-            case 2:
+            case "filter":
                 jLabel1.setText(texts.getString("filterLeases"));
                 setTextsFromLease(lease);
                 setSelectedCarAndCustomer(lease.getCustomerId(),lease.getCarId());
@@ -65,52 +70,19 @@ public class LeasePopUp extends javax.swing.JPanel {
         }
         
     }
-    private void addExampleCars(){
-        Car c = new Car();
-        c.setId(1L);
-        c.setType("Fabia");
-        c.setModelYear(2009);
-        c.setVendor("Škoda");
-        c.setSeats(5);
-        c.setRegistrationPlate("BKE 4535");
-        carsModel.addCar(c);
-        c = new Car();
-        c.setId(2L);
-        c.setType("X6");
-        c.setModelYear(2013);
-        c.setVendor("BmW");
-        c.setSeats(5);
-        c.setRegistrationPlate("AND 5632");
-        carsModel.addCar(c);
-    }
-    
-    private void addExampleCustomers(){
-        Customer c = new Customer();
-        c.setId(11L);
-        c.setFullName("Jarda Nový");
-        c.setPhoneNumber("516 456 678");
-        c.setBirthDate(LocalDate.parse("1979-06-19"));
-        c.setAddress("Kryštofova 124, Olomouc");
-        customersModel.addCustomer(c);
-        c = new Customer();
-        c.setId(12L);
-        c.setFullName("Milada Nová");
-        c.setPhoneNumber("516 123 987");
-        c.setBirthDate(LocalDate.parse("1984-12-30"));
-        c.setAddress("Úzká 987, Brno");
-        customersModel.addCustomer(c);
-    }
     
     private void setTextsFromLease(Lease l){
-        jTextField1.setText(l.getStartTime().toString());
-        jTextField2.setText(l.getExpectedEndTime().toString());
-        if(l.getRealEndTime() != null){ //real end time dont have to be setted
+        //all values dont have to be setted cause filterCustomer can have all field null
+        if(l.getStartTime() != null)
+            jTextField1.setText(l.getStartTime().toString());
+        if(l.getExpectedEndTime() != null)
+            jTextField2.setText(l.getExpectedEndTime().toString());
+        if(l.getRealEndTime() != null) 
             jTextField3.setText(l.getRealEndTime().toString());
-        }
-        jTextField4.setText(l.getPrice().toString());
-        if(l.getFee() != null){
-            jTextField5.setText(l.getFee().toString());
-        }
+        if(l.getPrice() != null)
+            jTextField4.setText(l.getPrice().toString());
+        if(l.getFee() != null)
+            jTextField5.setText(l.getFee().toString());        
     }
 
     private void setSelectedCarAndCustomer(Long cusId,Long carId){
@@ -287,13 +259,13 @@ public class LeasePopUp extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         switch(action){
-            case 0:
+            case "add":
                 addNewLease();
                 break;
-            case 1:
+            case "edit":
                 editLease();
                 break;
-            case 2:
+            case "filter":
                 filterLease();
                 break;
         }
@@ -340,7 +312,7 @@ public class LeasePopUp extends javax.swing.JPanel {
         
         fillLeaseFromTextInput(newLease);
         
-        ((LeaseTableModel)leaseTable.getModel()).addLease(newLease);
+        ((LeaseTableModel)table.getModel()).addLease(newLease);
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
     }
@@ -382,14 +354,30 @@ public class LeasePopUp extends javax.swing.JPanel {
         }
         
         fillLeaseFromTextInput(lease);
-        int selectedRow = leaseTable.getSelectedRow();
-        ((LeaseTableModel)leaseTable.getModel()).fireTableRowsUpdated(selectedRow, selectedRow);
+        int selectedRow = table.getSelectedRow();
+        ((LeaseTableModel)table.getModel()).updateLease(lease, selectedRow);
         
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
     }
 
     private void filterLease() {
+        List<String> errors = checkCorrectnessOfTextInputForFiltering();
+        if(!errors.isEmpty()){
+            JOptionPane.showMessageDialog(null,
+                    texts.getString("fillUpAllFields") +": "+
+                            errors.toString(),texts.getString("fillUpAllFields"),
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        fillUpLeaseForFilterFromTextInput();
+        
+        ((LeaseTableModel)table.getModel()).filterLeases();
+        table.updateUI();
+        
+        Window win = SwingUtilities.getWindowAncestor(this);
+        win.dispose();
         
     }
 
@@ -434,6 +422,69 @@ public class LeasePopUp extends javax.swing.JPanel {
         }
         return true;
     }    
+    
+    private List<String> checkCorrectnessOfTextInputForFiltering(){
+        List<String> errors = new ArrayList<>();
+        if(!jTextField1.getText().trim().isEmpty() && !isDateTimeFormatCorrect(jTextField1.getText().trim()))
+            errors.add(jLabel4.getText());
+        if(!jTextField2.getText().trim().isEmpty() && !isDateTimeFormatCorrect(jTextField2.getText().trim()))
+            errors.add(jLabel5.getText());
+        if(!jTextField3.getText().trim().isEmpty() && !isDateTimeFormatCorrect(jTextField3.getText().trim()))
+            errors.add(jLabel6.getText());
+        if(!jTextField4.getText().trim().isEmpty() && !jTextField4.getText().trim().matches("\\d+"))
+            errors.add(jLabel7.getText());
+        if(!jTextField5.getText().trim().isEmpty() && !jTextField5.getText().trim().matches("\\d+"))
+            errors.add(jLabel8.getText());
+        return errors;            
+    }
+        
+    private void fillUpLeaseForFilterFromTextInput(){
+        //customerId
+        if(jList1.getSelectedIndex() > 0) {
+            Customer cus = customersModel.getSelectedCustomer(jList1.getSelectedIndex());
+            if(cus != null) {
+                lease.setCustomerId(cus.getId());
+            } else {
+                lease.setCustomerId(null);
+            }
+        }
+        //carId
+        if(jList2.getSelectedIndex() > 0) {
+            Car car = carsModel.getSelectedCar(jList2.getSelectedIndex());
+            if(car != null) {
+                lease.setCarId(car.getId());
+            } else {
+                lease.setCarId(null);
+            }
+        }
+        //startTime
+        if(!jTextField1.getText().trim().isEmpty() && isDateTimeFormatCorrect(jTextField1.getText().trim()))
+            lease.setStartTime(LocalDateTime.parse(jTextField1.getText().trim()));
+        else
+            lease.setStartTime(null);
+        //expectedEndTime
+        if(!jTextField2.getText().trim().isEmpty() && isDateTimeFormatCorrect(jTextField2.getText().trim()))
+            lease.setExpectedEndTime(LocalDateTime.parse(jTextField2.getText().trim()));
+        else
+            lease.setExpectedEndTime(null);
+        //realEndTime
+        if(!jTextField3.getText().trim().isEmpty() &&isDateTimeFormatCorrect(jTextField3.getText().trim()))
+            lease.setRealEndTime(LocalDateTime.parse(jTextField3.getText().trim()));
+        else
+            lease.setRealEndTime(null);
+        //price
+        if(!jTextField4.getText().trim().isEmpty() && jTextField4.getText().trim().matches("\\d+"))
+            lease.setPrice(new BigDecimal(jTextField4.getText().trim()));
+        else
+            lease.setPrice(null);
+        //fee
+        if(!jTextField5.getText().trim().isEmpty() && jTextField5.getText().trim().matches("\\d+"))
+            lease.setFee(new BigDecimal(jTextField5.getText().trim()));
+        else
+            lease.setFee(null);
+        
+    }
+    
 
 }
 

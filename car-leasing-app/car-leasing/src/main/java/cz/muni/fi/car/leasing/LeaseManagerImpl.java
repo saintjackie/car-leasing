@@ -44,9 +44,18 @@ public class LeaseManagerImpl implements LeaseManager {
             st.setLong(2, lease.getCustomerId());
             st.setTimestamp(3, Timestamp.valueOf(lease.getStartTime()));
             st.setTimestamp(4, Timestamp.valueOf(lease.getExpectedEndTime()));
-            st.setTimestamp(5, Timestamp.valueOf(lease.getRealEndTime()));
+            if(lease.getRealEndTime() != null){
+                st.setTimestamp(5, Timestamp.valueOf(lease.getRealEndTime()));
+            }else {
+                st.setTimestamp(5,null);
+            }
             st.setBigDecimal(6, lease.getPrice());
-            st.setBigDecimal(7, lease.getFee());
+            if(lease.getFee() != null){
+                st.setBigDecimal(7, lease.getFee());
+            }else{
+                st.setBigDecimal(7,null);
+            }
+            
 
             int addedRows = st.executeUpdate();
 
@@ -112,9 +121,17 @@ public class LeaseManagerImpl implements LeaseManager {
             st.setLong(2, lease.getCustomerId());
             st.setTimestamp(3, Timestamp.valueOf(lease.getStartTime()));
             st.setTimestamp(4, Timestamp.valueOf(lease.getExpectedEndTime()));
-            st.setTimestamp(5, Timestamp.valueOf(lease.getRealEndTime()));
+            if(lease.getRealEndTime() != null){
+                st.setTimestamp(5, Timestamp.valueOf(lease.getRealEndTime()));
+            }else{
+                st.setTimestamp(5,null);
+            }
             st.setBigDecimal(6, lease.getPrice());
-            st.setBigDecimal(7, lease.getFee());
+            if(lease.getFee() != null){
+                st.setBigDecimal(7, lease.getFee());
+            }else{
+                st.setBigDecimal(7,null);
+            }
             st.setLong(8, lease.getId());
 
             int updatedRows = st.executeUpdate();
@@ -358,9 +375,11 @@ public class LeaseManagerImpl implements LeaseManager {
         lease.setCustomerId(rs.getLong("customerId"));
         lease.setStartTime(rs.getTimestamp("startTime").toLocalDateTime());
         lease.setExpectedEndTime(rs.getTimestamp("expectedEndTime").toLocalDateTime());
-        lease.setRealEndTime(rs.getTimestamp("realEndTime").toLocalDateTime());
+        if(rs.getTimestamp("realEndTime") != null)
+            lease.setRealEndTime(rs.getTimestamp("realEndTime").toLocalDateTime());
         lease.setPrice(rs.getBigDecimal("price"));
-        lease.setFee(rs.getBigDecimal("fee"));
+        if(rs.getBigDecimal("fee")!=null)
+            lease.setFee(rs.getBigDecimal("fee"));
 
         return lease;
     }

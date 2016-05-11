@@ -34,9 +34,9 @@ public class Lease {
     }
 
     public void setCarId(Long carId) {
-        if(carId == null) {
-            throw new IllegalArgumentException("Cannot create lease with null carId");
-        }
+//        if(carId == null) {
+//            throw new IllegalArgumentException("Cannot create lease with null carId");
+//        }
         this.carId = carId;
     }
 
@@ -45,9 +45,9 @@ public class Lease {
     }
 
     public void setCustomerId(Long customerId) {
-        if(customerId == null) {
-            throw new IllegalArgumentException("Cannot create lease with null customerId");
-        }
+//        if(customerId == null) {
+//            throw new IllegalArgumentException("Cannot create lease with null customerId");
+//        }
         this.customerId = customerId;
     }
 

@@ -17,12 +17,12 @@ import javax.swing.SwingUtilities;
  */
 public class CustomerPopUp extends javax.swing.JPanel {
 
-    private int action; //0=add, 1=edit, 2=filter
+    private String action;
     private Customer customer;
     private ResourceBundle texts;
     private JTable table;
     
-    public CustomerPopUp(int action,Customer customer,ResourceBundle texts,
+    public CustomerPopUp(String action,Customer customer,ResourceBundle texts,
             JTable table) {
         initComponents();
         this.texts = texts;
@@ -30,14 +30,14 @@ public class CustomerPopUp extends javax.swing.JPanel {
         this.action = action;
         this.customer = customer;
         switch(action){
-            case 0:
+            case "add":
                 jLabel1.setText(texts.getString("addCustomer"));
                 break;
-            case 1:
+            case "edit":
                 jLabel1.setText(texts.getString("editCustomer"));
                 setTextsFromCustomer(customer);
                 break;
-            case 2: 
+            case "filter": 
                 jLabel1.setText(texts.getString("filterCustomers"));
                 setTextsFromCustomer(customer);
                 break;                
@@ -47,7 +47,8 @@ public class CustomerPopUp extends javax.swing.JPanel {
     private void setTextsFromCustomer(Customer customer){        
         jTextField1.setText(customer.getFullName());
         jTextField2.setText(customer.getPhoneNumber());
-        jTextField3.setText(customer.getBirthDate().toString());
+        if(customer.getBirthDate() != null)
+            jTextField3.setText(customer.getBirthDate().toString());
         jTextArea1.setText(customer.getAddress());
     }
 
@@ -171,13 +172,13 @@ public class CustomerPopUp extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         switch(action){
-            case 0:
+            case "add":
                 addNewCustomer();
                 break;
-            case 1:
+            case "edit":
                 editCustomer();
                 break;
-            case 2: 
+            case "filter": 
                 filterCustomer();
                 break;
         } 
@@ -270,7 +271,7 @@ public class CustomerPopUp extends javax.swing.JPanel {
         }
         fillUpCustomerFromTextInput();     
         int selectedRow = table.getSelectedRow();
-        ((CustomerTableModel)table.getModel()).fireTableRowsUpdated(selectedRow,selectedRow);
+        ((CustomerTableModel)table.getModel()).updateCustomer(customer, selectedRow);
         
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
@@ -279,19 +280,41 @@ public class CustomerPopUp extends javax.swing.JPanel {
     //filtering is handled in table model
     private void filterCustomer() {        
         //check correct birth date format
-        if(!isBirthDateFormatCorrect(jTextField3.getText().trim())){
-            JOptionPane.showMessageDialog(null,
-                    texts.getString("fillUpAllFields") +": ["+
-                            jLabel4.getText()+"]",texts.getString("fillUpAllFields"),
-                    JOptionPane.WARNING_MESSAGE);
-            return;
+        if (!jTextField3.getText().trim().isEmpty()) {
+            if (!isBirthDateFormatCorrect(jTextField3.getText().trim())) {
+                JOptionPane.showMessageDialog(null,
+                        texts.getString("fillUpAllFields") + ": ["
+                        + jLabel4.getText() + "]", texts.getString("fillUpAllFields"),
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
         }
         
-        fillUpCustomerFromTextInput();
-        //table model filter
-        //TODO
+        
+        fillUpCustomerForFilteringFromTextInput();
+        ((CustomerTableModel)table.getModel()).filterCustomers();
+        table.updateUI();
         
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
+    }
+    
+    public void fillUpCustomerForFilteringFromTextInput(){
+        if(!jTextField1.getText().trim().isEmpty())
+            customer.setFullName(jTextField1.getText().trim());
+        else
+            customer.setFullName(null);
+        if(!jTextField2.getText().trim().isEmpty())
+            customer.setPhoneNumber(jTextField2.getText().trim());
+        else
+            customer.setPhoneNumber(null);
+        if(!jTextField3.getText().trim().isEmpty())
+            customer.setBirthDate(LocalDate.parse(jTextField3.getText().trim()));
+        else
+            customer.setBirthDate(null);
+        if(!jTextArea1.getText().trim().isEmpty())
+            customer.setAddress(jTextArea1.getText().trim());
+        else
+            customer.setAddress(null);
     }
 }
