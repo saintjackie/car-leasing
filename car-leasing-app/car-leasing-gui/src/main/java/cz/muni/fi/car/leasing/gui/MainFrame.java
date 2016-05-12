@@ -42,19 +42,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         DataSourceSwingWorker dataSourceSwingWorker = new DataSourceSwingWorker();
         dataSourceSwingWorker.execute();
-
-        initComponents();
-         jTabbedPane1.setTitleAt(0, texts.getString("cars"));
-         jTabbedPane1.setTitleAt(1, texts.getString("customers"));
-         jTabbedPane1.setTitleAt(2, texts.getString("leasings"));
-         
-         jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-         jTable2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-         jTable3.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-         jButton3.setEnabled(false);
-         jMenuItem6.setEnabled(false);
-         this.setLocationRelativeTo(null);
-         
     }
 
     private class DataSourceSwingWorker extends SwingWorker<DataSource,Void> {
@@ -68,6 +55,17 @@ public class MainFrame extends javax.swing.JFrame {
         protected void done() {
             try {
                 dataSource = get();
+                initComponents();
+                jTabbedPane1.setTitleAt(0, texts.getString("cars"));
+                jTabbedPane1.setTitleAt(1, texts.getString("customers"));
+                jTabbedPane1.setTitleAt(2, texts.getString("leasings"));
+
+                jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                jTable2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                jTable3.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                jButton3.setEnabled(false);
+                jMenuItem6.setEnabled(false);
+                setLocationRelativeTo(null);
             } catch (ExecutionException ex) {
                 // TODO jTextArea.append("Exception thrown in doInBackground(): " + ex.getCause() + "\n");
             } catch (InterruptedException ex) {
