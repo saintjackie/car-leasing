@@ -99,7 +99,6 @@ public class CarTableModel extends AbstractTableModel{
     
     public void filterCars(){       
         List<Car> filteredCars=null;
-         //helping list, cause if nothing is find, retain wont intersect the list
         //type
         if(filterCar.getType() != null){
            filteredCars = carManager.findByType(filterCar.getType());

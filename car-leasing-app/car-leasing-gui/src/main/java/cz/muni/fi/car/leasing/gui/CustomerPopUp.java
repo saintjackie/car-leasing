@@ -3,7 +3,8 @@ package cz.muni.fi.car.leasing.gui;
 import cz.muni.fi.car.leasing.Customer;
 import java.awt.Window;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.Year;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -23,12 +24,12 @@ public class CustomerPopUp extends javax.swing.JPanel {
     private JTable table;
     
     public CustomerPopUp(String action,Customer customer,ResourceBundle texts,
-            JTable table) {
+            JTable table) {        
         initComponents();
         this.texts = texts;
         this.table = table;
         this.action = action;
-        this.customer = customer;
+        this.customer = customer;                
         switch(action){
             case "add":
                 jLabel1.setText(texts.getString("addCustomer"));
@@ -47,8 +48,11 @@ public class CustomerPopUp extends javax.swing.JPanel {
     private void setTextsFromCustomer(Customer customer){        
         jTextField1.setText(customer.getFullName());
         jTextField2.setText(customer.getPhoneNumber());
-        if(customer.getBirthDate() != null)
-            jTextField3.setText(customer.getBirthDate().toString());
+        if(customer.getBirthDate() != null){
+            jComboBox3.setSelectedIndex(Year.now().getValue()-customer.getBirthDate().getYear()+1);
+            jComboBox2.setSelectedIndex(customer.getBirthDate().getMonthValue());
+            jComboBox1.setSelectedIndex(customer.getBirthDate().getDayOfMonth());
+        }
         jTextArea1.setText(customer.getAddress());
     }
 
@@ -68,11 +72,23 @@ public class CustomerPopUp extends javax.swing.JPanel {
         jLabel5 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        Integer[] days = new Integer[32];
+        for(int i=1;i<32;i++) days[i] = i;
+        jComboBox1 = new javax.swing.JComboBox();
+        Integer[] months = new Integer[13];
+        for(int i=1;i<13;i++) months[i] = i;
+        jComboBox2 = new javax.swing.JComboBox();
+        int currentYear = Year.now().getValue();
+        Integer[] years = new Integer[currentYear-1899];
+        for(int i=1;i<currentYear-1899;i++) years[i] = currentYear-i+1;
+        jComboBox3 = new javax.swing.JComboBox();
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -86,8 +102,6 @@ public class CustomerPopUp extends javax.swing.JPanel {
         jLabel4.setText(bundle.getString("birthDate")); // NOI18N
 
         jLabel5.setText(bundle.getString("address")); // NOI18N
-
-        jTextField3.setToolTipText(bundle.getString("toolTipBirthDate")); // NOI18N
 
         jTextArea1.setColumns(18);
         jTextArea1.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
@@ -108,6 +122,28 @@ public class CustomerPopUp extends javax.swing.JPanel {
             }
         });
 
+        jLabel6.setText(bundle.getString("day")); // NOI18N
+
+        jLabel7.setText(bundle.getString("month")); // NOI18N
+
+        jLabel8.setText(bundle.getString("year")); // NOI18N
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(days));
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(months));
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
+
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(years));
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -124,18 +160,26 @@ public class CustomerPopUp extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
+                                .addComponent(jTextField1))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jTextField3)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
-                                        .addComponent(jTextField1)))
-                                .addGap(0, 0, Short.MAX_VALUE))))
+                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel6))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel7)
+                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel8))))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -156,9 +200,17 @@ public class CustomerPopUp extends javax.swing.JPanel {
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel8))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -166,7 +218,7 @@ public class CustomerPopUp extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -189,20 +241,42 @@ public class CustomerPopUp extends javax.swing.JPanel {
         win.dispose();        
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        if(jComboBox2.getSelectedIndex()>0 && jComboBox3.getSelectedIndex()>0){
+            int selectedYear = (int) jComboBox3.getSelectedItem();
+            int maxDaysOfMonth = YearMonth.of(selectedYear,(int)jComboBox2.getSelectedItem()).lengthOfMonth();
+            while(maxDaysOfMonth+1 < jComboBox1.getModel().getSize()){//we must delete some days in jcombobox1
+                jComboBox1.removeItemAt(jComboBox1.getModel().getSize()-1);
+            }
+            while(maxDaysOfMonth+1 > jComboBox1.getModel().getSize()){//we must add some days
+                jComboBox1.addItem(jComboBox1.getModel().getSize());
+            }
+        }
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+        jComboBox2ActionPerformed(evt);
+    }//GEN-LAST:event_jComboBox3ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JComboBox jComboBox2;
+    private javax.swing.JComboBox jComboBox3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 
     private void addNewCustomer() {
@@ -234,30 +308,22 @@ public class CustomerPopUp extends javax.swing.JPanel {
         if(jTextField2.getText().trim().isEmpty()){
             errors.add(jLabel3.getText());
         }
-        if(!isBirthDateFormatCorrect(jTextField3.getText().trim())){            
+        if(jComboBox1.getSelectedIndex() < 1 || jComboBox2.getSelectedIndex() < 1 ||
+                jComboBox3.getSelectedIndex() < 1){
             errors.add(jLabel4.getText());
         }
+
         if(jTextArea1.getText().trim().isEmpty()){
             errors.add(jLabel5.getText());
         }        
         return errors;
     }
     
-    private boolean isBirthDateFormatCorrect(String birthDate){
-        if(!birthDate.matches("\\d{4}-\\d{2}-\\d{2}")){
-            return false;
-        }
-        try {
-            LocalDate.parse(birthDate);
-        } catch (DateTimeParseException ex) {
-            return false;
-        }
-        return true;        
-    }
     private void fillUpCustomerFromTextInput(){
         customer.setFullName(jTextField1.getText().trim());
         customer.setPhoneNumber(jTextField2.getText().trim());
-        customer.setBirthDate(LocalDate.parse(jTextField3.getText().trim()));
+        customer.setBirthDate(LocalDate.of((int)jComboBox3.getSelectedItem(),
+                (int)jComboBox2.getSelectedItem(),(int)jComboBox1.getSelectedItem()));
         customer.setAddress(jTextArea1.getText().trim());
     }
     private void editCustomer() {        
@@ -280,8 +346,11 @@ public class CustomerPopUp extends javax.swing.JPanel {
     //filtering is handled in table model
     private void filterCustomer() {        
         //check correct birth date format
-        if (!jTextField3.getText().trim().isEmpty()) {
-            if (!isBirthDateFormatCorrect(jTextField3.getText().trim())) {
+
+        if (jComboBox1.getSelectedIndex() > 0 || jComboBox2.getSelectedIndex() > 0
+                || jComboBox3.getSelectedIndex() > 0) {
+            if (jComboBox1.getSelectedIndex() < 1 || jComboBox2.getSelectedIndex() < 1
+                    || jComboBox3.getSelectedIndex() < 1) {
                 JOptionPane.showMessageDialog(null,
                         texts.getString("fillUpAllFields") + ": ["
                         + jLabel4.getText() + "]", texts.getString("fillUpAllFields"),
@@ -289,8 +358,7 @@ public class CustomerPopUp extends javax.swing.JPanel {
                 return;
             }
         }
-        
-        
+
         fillUpCustomerForFilteringFromTextInput();
         ((CustomerTableModel)table.getModel()).filterCustomers();
         table.updateUI();
@@ -308,8 +376,9 @@ public class CustomerPopUp extends javax.swing.JPanel {
             customer.setPhoneNumber(jTextField2.getText().trim());
         else
             customer.setPhoneNumber(null);
-        if(!jTextField3.getText().trim().isEmpty())
-            customer.setBirthDate(LocalDate.parse(jTextField3.getText().trim()));
+        if(jComboBox1.getSelectedIndex()>0)//its ok test only 1 combobox, cause we check if all are correctly set
+            customer.setBirthDate(LocalDate.of((int)jComboBox3.getSelectedItem(),
+                (int)jComboBox2.getSelectedItem(),(int)jComboBox1.getSelectedItem()));
         else
             customer.setBirthDate(null);
         if(!jTextArea1.getText().trim().isEmpty())

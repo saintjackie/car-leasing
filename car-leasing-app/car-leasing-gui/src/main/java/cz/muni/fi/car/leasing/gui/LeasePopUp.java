@@ -10,12 +10,17 @@ import cz.muni.fi.car.leasing.Lease;
 import java.awt.Window;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.sql.DataSource;
 import javax.swing.AbstractListModel;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
@@ -56,6 +61,12 @@ public class LeasePopUp extends javax.swing.JPanel {
         switch(action){
             case "add":
                 jLabel1.setText(texts.getString("addLease"));
+                //set actual date      
+                LocalDateTime t = LocalDateTime.now();
+                setDateTimeToComboBox(jComboBox1, jComboBox2, jComboBox3, jComboBox4, jComboBox5,
+                        t.getDayOfMonth(), t.getMonthValue(), t.getYear(),t.getHour(),t.getMinute());
+                setDateTimeToComboBox(jComboBox6, jComboBox7, jComboBox8, jComboBox9, jComboBox10,
+                        t.getDayOfMonth(), t.getMonthValue(), t.getYear(),t.getHour(),t.getMinute());
                 break;
             case "edit":
                 jLabel1.setText(texts.getString("editLease"));
@@ -71,14 +82,23 @@ public class LeasePopUp extends javax.swing.JPanel {
         
     }
     
+    private void setDateTimeToComboBox(JComboBox day, JComboBox month, JComboBox year,
+            JComboBox hour,JComboBox minute,int dayVal,int monthVal,int yearVal,int hourVal,int minVal){
+        day.setSelectedIndex(dayVal);
+        month.setSelectedIndex(monthVal);
+        year.setSelectedIndex(Year.now().getValue()-yearVal+1);
+        hour.setSelectedIndex(hourVal+1);
+        minute.setSelectedIndex(minVal+1);
+    }
+    
     private void setTextsFromLease(Lease l){
         //all values dont have to be setted cause filterCustomer can have all field null
-        if(l.getStartTime() != null)
-            jTextField1.setText(l.getStartTime().toString());
-        if(l.getExpectedEndTime() != null)
-            jTextField2.setText(l.getExpectedEndTime().toString());
-        if(l.getRealEndTime() != null) 
-            jTextField3.setText(l.getRealEndTime().toString());
+//        if(l.getStartTime() != null)
+//            jTextField1.setText(l.getStartTime().toString());
+//        if(l.getExpectedEndTime() != null)
+//            jTextField2.setText(l.getExpectedEndTime().toString());
+//        if(l.getRealEndTime() != null) 
+//            jTextField3.setText(l.getRealEndTime().toString());
         if(l.getPrice() != null)
             jTextField4.setText(l.getPrice().toString());
         if(l.getFee() != null)
@@ -106,11 +126,8 @@ public class LeasePopUp extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
@@ -121,6 +138,37 @@ public class LeasePopUp extends javax.swing.JPanel {
         jList1 = new javax.swing.JList();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList();
+        Integer[] days = new Integer[32];
+        for(int i=1;i<32;i++) days[i] = i;
+        jComboBox1 = new javax.swing.JComboBox();
+        jLabel9 = new javax.swing.JLabel();
+        Integer[] months = new Integer[13];
+        for(int i=1;i<13;i++) months[i] = i;
+        jComboBox2 = new javax.swing.JComboBox();
+        jLabel10 = new javax.swing.JLabel();
+        int currentYear = Year.now().getValue();
+        Integer[] years = new Integer[currentYear-1899];
+        for(int i=1;i<currentYear-1899;i++) years[i] = currentYear-i+1;
+        jComboBox3 = new javax.swing.JComboBox();
+        jLabel11 = new javax.swing.JLabel();
+        Integer[] hours = new Integer[25];
+        for(int i=1;i<25;i++) hours[i] = i-1;
+        jComboBox4 = new javax.swing.JComboBox();
+        Integer[] minutes = new Integer[61];
+        for(int i=1;i<61;i++) minutes[i] = i-1;
+        jComboBox5 = new javax.swing.JComboBox();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jComboBox6 = new javax.swing.JComboBox();
+        jComboBox7 = new javax.swing.JComboBox();
+        jComboBox8 = new javax.swing.JComboBox();
+        jComboBox9 = new javax.swing.JComboBox();
+        jComboBox10 = new javax.swing.JComboBox();
+        jComboBox11 = new javax.swing.JComboBox();
+        jComboBox12 = new javax.swing.JComboBox();
+        jComboBox13 = new javax.swing.JComboBox();
+        jComboBox14 = new javax.swing.JComboBox();
+        jComboBox15 = new javax.swing.JComboBox();
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -133,15 +181,9 @@ public class LeasePopUp extends javax.swing.JPanel {
 
         jLabel4.setText(bundle.getString("start")); // NOI18N
 
-        jTextField1.setToolTipText(bundle.getString("tooltipStart")); // NOI18N
-
         jLabel5.setText(bundle.getString("end")); // NOI18N
 
-        jTextField2.setToolTipText(bundle.getString("tooltipStart")); // NOI18N
-
         jLabel6.setText(bundle.getString("realEnd")); // NOI18N
-
-        jTextField3.setToolTipText(bundle.getString("tooltipStart")); // NOI18N
 
         jLabel7.setText(bundle.getString("price")); // NOI18N
 
@@ -175,6 +217,76 @@ public class LeasePopUp extends javax.swing.JPanel {
         });
         jScrollPane2.setViewportView(jList2);
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(days));
+
+        jLabel9.setText(bundle.getString("day")); // NOI18N
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(months));
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText(bundle.getString("month")); // NOI18N
+
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(years));
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox3ActionPerformed(evt);
+            }
+        });
+
+        jLabel11.setText(bundle.getString("year")); // NOI18N
+
+        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(hours));
+
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(minutes));
+
+        jLabel12.setText(bundle.getString("hour")); // NOI18N
+
+        jLabel13.setText(bundle.getString("minute")); // NOI18N
+
+        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel(days));
+
+        jComboBox7.setModel(new javax.swing.DefaultComboBoxModel(months));
+        jComboBox7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox7ActionPerformed(evt);
+            }
+        });
+
+        jComboBox8.setModel(new javax.swing.DefaultComboBoxModel(years));
+        jComboBox8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox8ActionPerformed(evt);
+            }
+        });
+
+        jComboBox9.setModel(new javax.swing.DefaultComboBoxModel(hours));
+
+        jComboBox10.setModel(new javax.swing.DefaultComboBoxModel(minutes));
+
+        jComboBox11.setModel(new javax.swing.DefaultComboBoxModel(days));
+
+        jComboBox12.setModel(new javax.swing.DefaultComboBoxModel(months));
+        jComboBox12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox12ActionPerformed(evt);
+            }
+        });
+
+        jComboBox13.setModel(new javax.swing.DefaultComboBoxModel(years));
+        jComboBox13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox13ActionPerformed(evt);
+            }
+        });
+
+        jComboBox14.setModel(new javax.swing.DefaultComboBoxModel(hours));
+
+        jComboBox15.setModel(new javax.swing.DefaultComboBoxModel(minutes));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -201,20 +313,57 @@ public class LeasePopUp extends javax.swing.JPanel {
                                     .addComponent(jScrollPane1)
                                     .addComponent(jScrollPane2)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
-                                            .addComponent(jTextField2)
-                                            .addComponent(jTextField3)
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
-                                                .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING)))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(jTextField5, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+                                                .addComponent(jTextField4))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jLabel9))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jLabel10))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jLabel11))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jLabel12))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel13)
+                                                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBox8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBox10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jComboBox11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBox12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBox13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jComboBox14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBox15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                         .addGap(0, 0, Short.MAX_VALUE))))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 188, Short.MAX_VALUE)
+                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(16, 16, 16))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -231,16 +380,35 @@ public class LeasePopUp extends javax.swing.JPanel {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel13))
+                .addGap(1, 1, 1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
@@ -276,11 +444,81 @@ public class LeasePopUp extends javax.swing.JPanel {
         win.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        if(jComboBox2.getSelectedIndex()>0 && jComboBox3.getSelectedIndex()>0){
+            int selectedYear = (int) jComboBox3.getSelectedItem();
+            int maxDaysOfMonth = YearMonth.of(selectedYear,(int)jComboBox2.getSelectedItem()).lengthOfMonth();
+            while(maxDaysOfMonth+1 < jComboBox1.getModel().getSize()){//we must delete some days in jcombobox1
+                jComboBox1.removeItemAt(jComboBox1.getModel().getSize()-1);
+            }
+            while(maxDaysOfMonth+1 > jComboBox1.getModel().getSize()){//we must add some days
+                jComboBox1.addItem(jComboBox1.getModel().getSize());
+            }
+        }
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+        jComboBox2ActionPerformed(evt);
+    }//GEN-LAST:event_jComboBox3ActionPerformed
+
+    private void jComboBox7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox7ActionPerformed
+        if(jComboBox7.getSelectedIndex()>0 && jComboBox8.getSelectedIndex()>0){
+            int selectedYear = (int) jComboBox8.getSelectedItem();
+            int maxDaysOfMonth = YearMonth.of(selectedYear,(int)jComboBox7.getSelectedItem()).lengthOfMonth();
+            while(maxDaysOfMonth+1 < jComboBox6.getModel().getSize()){//we must delete some days in jcombobox1
+                jComboBox6.removeItemAt(jComboBox6.getModel().getSize()-1);
+            }
+            while(maxDaysOfMonth+1 > jComboBox6.getModel().getSize()){//we must add some days
+                jComboBox6.addItem(jComboBox6.getModel().getSize());
+            }
+        }
+    }//GEN-LAST:event_jComboBox7ActionPerformed
+
+    private void jComboBox8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox8ActionPerformed
+        jComboBox7ActionPerformed(evt);
+    }//GEN-LAST:event_jComboBox8ActionPerformed
+
+    private void jComboBox12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox12ActionPerformed
+        if(jComboBox12.getSelectedIndex()>0 && jComboBox13.getSelectedIndex()>0){
+            int selectedYear = (int) jComboBox13.getSelectedItem();
+            int maxDaysOfMonth = YearMonth.of(selectedYear,(int)jComboBox12.getSelectedItem()).lengthOfMonth();
+            while(maxDaysOfMonth+1 < jComboBox11.getModel().getSize()){//we must delete some days in jcombobox1
+                jComboBox11.removeItemAt(jComboBox11.getModel().getSize()-1);
+            }
+            while(maxDaysOfMonth+1 > jComboBox11.getModel().getSize()){//we must add some days
+                jComboBox11.addItem(jComboBox11.getModel().getSize());
+            }
+        }
+    }//GEN-LAST:event_jComboBox12ActionPerformed
+
+    private void jComboBox13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox13ActionPerformed
+        jComboBox12ActionPerformed(evt);
+    }//GEN-LAST:event_jComboBox13ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JComboBox jComboBox10;
+    private javax.swing.JComboBox jComboBox11;
+    private javax.swing.JComboBox jComboBox12;
+    private javax.swing.JComboBox jComboBox13;
+    private javax.swing.JComboBox jComboBox14;
+    private javax.swing.JComboBox jComboBox15;
+    private javax.swing.JComboBox jComboBox2;
+    private javax.swing.JComboBox jComboBox3;
+    private javax.swing.JComboBox jComboBox4;
+    private javax.swing.JComboBox jComboBox5;
+    private javax.swing.JComboBox jComboBox6;
+    private javax.swing.JComboBox jComboBox7;
+    private javax.swing.JComboBox jComboBox8;
+    private javax.swing.JComboBox jComboBox9;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -288,13 +526,11 @@ public class LeasePopUp extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
     // End of variables declaration//GEN-END:variables
@@ -326,12 +562,19 @@ public class LeasePopUp extends javax.swing.JPanel {
         if(car != null){
             lease.setCarId(car.getId());
         }
-        lease.setStartTime(LocalDateTime.parse(jTextField1.getText().trim()));
-        lease.setExpectedEndTime(LocalDateTime.parse(jTextField2.getText().trim()));
-        if(jTextField3.getText().trim().isEmpty()){
-            lease.setRealEndTime(null);
+        lease.setStartTime(LocalDateTime.of((int)jComboBox3.getSelectedItem(),
+                (int)jComboBox2.getSelectedItem(),(int)jComboBox1.getSelectedItem(),
+                (int)jComboBox4.getSelectedItem(),(int)jComboBox5.getSelectedItem()));
+        lease.setExpectedEndTime(LocalDateTime.of((int)jComboBox8.getSelectedItem(),
+                (int)jComboBox7.getSelectedItem(),(int)jComboBox6.getSelectedItem(),
+                (int)jComboBox9.getSelectedItem(),(int)jComboBox10.getSelectedItem()));
+        
+        if(jComboBox11.getSelectedIndex()>0){
+            lease.setRealEndTime(LocalDateTime.of((int)jComboBox13.getSelectedItem(),
+                (int)jComboBox12.getSelectedItem(),(int)jComboBox11.getSelectedItem(),
+                (int)jComboBox14.getSelectedItem(),(int)jComboBox15.getSelectedItem()));
         }else{
-            lease.setRealEndTime(LocalDateTime.parse(jTextField3.getText().trim()));
+            lease.setRealEndTime(null);            
         }
         lease.setPrice(new BigDecimal(jTextField4.getText().trim()));
         
@@ -389,14 +632,22 @@ public class LeasePopUp extends javax.swing.JPanel {
         if(jList2.getSelectedIndex()==-1 || jList2.getSelectedIndex()==0){
             errors.add(jLabel3.getText());
         }
-        if(!isDateTimeFormatCorrect(jTextField1.getText().trim())){
+        if(jComboBox1.getSelectedIndex() < 1 || jComboBox2.getSelectedIndex() < 1 ||
+                jComboBox3.getSelectedIndex() < 1 ||jComboBox4.getSelectedIndex() < 1 ||
+                jComboBox5.getSelectedIndex() < 1){
             errors.add(jLabel4.getText());
         }
-        if(!isDateTimeFormatCorrect(jTextField2.getText().trim())){
+        if(jComboBox6.getSelectedIndex() < 1 || jComboBox7.getSelectedIndex() < 1 ||
+                jComboBox8.getSelectedIndex() < 1 ||jComboBox9.getSelectedIndex() < 1 ||
+                jComboBox10.getSelectedIndex() < 1){
             errors.add(jLabel5.getText());
         }
-        if(!jTextField3.getText().trim().isEmpty()){
-            if(!isDateTimeFormatCorrect(jTextField3.getText().trim())) {
+        if(jComboBox11.getSelectedIndex() > 0 ||jComboBox12.getSelectedIndex() > 0 ||
+                jComboBox13.getSelectedIndex() > 0 ||jComboBox14.getSelectedIndex() > 0 ||
+                jComboBox15.getSelectedIndex() > 0){            
+            if(jComboBox11.getSelectedIndex() < 1 || jComboBox12.getSelectedIndex() < 1 ||
+                    jComboBox13.getSelectedIndex() < 1 || jComboBox14.getSelectedIndex() < 1 ||
+                    jComboBox15.getSelectedIndex() < 1) {
                 errors.add(jLabel6.getText());
             }
         }
@@ -410,27 +661,40 @@ public class LeasePopUp extends javax.swing.JPanel {
         }
         
         return errors;
-    }
-    private boolean isDateTimeFormatCorrect(String dateTime){
-        if(!dateTime.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}")){
-            return false;
-        }
-        try {
-            LocalDateTime.parse(dateTime);
-        } catch (DateTimeParseException ex) {
-            return false;
-        }
-        return true;
-    }    
+    }  
     
     private List<String> checkCorrectnessOfTextInputForFiltering(){
         List<String> errors = new ArrayList<>();
-        if(!jTextField1.getText().trim().isEmpty() && !isDateTimeFormatCorrect(jTextField1.getText().trim()))
-            errors.add(jLabel4.getText());
-        if(!jTextField2.getText().trim().isEmpty() && !isDateTimeFormatCorrect(jTextField2.getText().trim()))
-            errors.add(jLabel5.getText());
-        if(!jTextField3.getText().trim().isEmpty() && !isDateTimeFormatCorrect(jTextField3.getText().trim()))
-            errors.add(jLabel6.getText());
+        //startTime
+        if(jComboBox1.getSelectedIndex() > 0 ||jComboBox2.getSelectedIndex() > 0 ||
+                jComboBox3.getSelectedIndex() > 0 ||jComboBox4.getSelectedIndex() > 0 ||
+                jComboBox5.getSelectedIndex() > 0){            
+            if(jComboBox1.getSelectedIndex() < 1 || jComboBox2.getSelectedIndex() < 1 ||
+                    jComboBox3.getSelectedIndex() < 1 || jComboBox4.getSelectedIndex() < 1 ||
+                    jComboBox5.getSelectedIndex() < 1) {
+                errors.add(jLabel4.getText());
+            }
+        }
+        //expectedEndTime
+        if(jComboBox6.getSelectedIndex() > 0 ||jComboBox7.getSelectedIndex() > 0 ||
+                jComboBox8.getSelectedIndex() > 0 ||jComboBox9.getSelectedIndex() > 0 ||
+                jComboBox10.getSelectedIndex() > 0){            
+            if(jComboBox6.getSelectedIndex() < 1 || jComboBox7.getSelectedIndex() < 1 ||
+                    jComboBox8.getSelectedIndex() < 1 || jComboBox9.getSelectedIndex() < 1 ||
+                    jComboBox10.getSelectedIndex() < 1) {
+                errors.add(jLabel5.getText());
+            }
+        }
+        //realEndTime
+        if(jComboBox11.getSelectedIndex() > 0 ||jComboBox12.getSelectedIndex() > 0 ||
+                jComboBox13.getSelectedIndex() > 0 ||jComboBox14.getSelectedIndex() > 0 ||
+                jComboBox15.getSelectedIndex() > 0){            
+            if(jComboBox11.getSelectedIndex() < 1 || jComboBox12.getSelectedIndex() < 1 ||
+                    jComboBox13.getSelectedIndex() < 1 || jComboBox14.getSelectedIndex() < 1 ||
+                    jComboBox15.getSelectedIndex() < 1) {
+                errors.add(jLabel6.getText());
+            }
+        }
         if(!jTextField4.getText().trim().isEmpty() && !jTextField4.getText().trim().matches("\\d+"))
             errors.add(jLabel7.getText());
         if(!jTextField5.getText().trim().isEmpty() && !jTextField5.getText().trim().matches("\\d+"))
@@ -458,18 +722,24 @@ public class LeasePopUp extends javax.swing.JPanel {
             }
         }
         //startTime
-        if(!jTextField1.getText().trim().isEmpty() && isDateTimeFormatCorrect(jTextField1.getText().trim()))
-            lease.setStartTime(LocalDateTime.parse(jTextField1.getText().trim()));
+        if(jComboBox1.getSelectedIndex()>0)
+            lease.setStartTime(LocalDateTime.of((int)jComboBox3.getSelectedItem(),
+                (int)jComboBox2.getSelectedItem(),(int)jComboBox1.getSelectedItem(),
+                (int)jComboBox4.getSelectedItem(),(int)jComboBox5.getSelectedItem()));
         else
             lease.setStartTime(null);
         //expectedEndTime
-        if(!jTextField2.getText().trim().isEmpty() && isDateTimeFormatCorrect(jTextField2.getText().trim()))
-            lease.setExpectedEndTime(LocalDateTime.parse(jTextField2.getText().trim()));
+        if(jComboBox6.getSelectedIndex()>0)
+            lease.setExpectedEndTime(LocalDateTime.of((int)jComboBox8.getSelectedItem(),
+                (int)jComboBox7.getSelectedItem(),(int)jComboBox6.getSelectedItem(),
+                (int)jComboBox9.getSelectedItem(),(int)jComboBox10.getSelectedItem()));
         else
             lease.setExpectedEndTime(null);
         //realEndTime
-        if(!jTextField3.getText().trim().isEmpty() &&isDateTimeFormatCorrect(jTextField3.getText().trim()))
-            lease.setRealEndTime(LocalDateTime.parse(jTextField3.getText().trim()));
+        if(jComboBox11.getSelectedIndex()>0)
+            lease.setRealEndTime(LocalDateTime.of((int)jComboBox13.getSelectedItem(),
+                (int)jComboBox12.getSelectedItem(),(int)jComboBox11.getSelectedItem(),
+                (int)jComboBox14.getSelectedItem(),(int)jComboBox15.getSelectedItem()));
         else
             lease.setRealEndTime(null);
         //price
