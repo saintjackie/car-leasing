@@ -10,12 +10,9 @@ import cz.muni.fi.car.leasing.Lease;
 import java.awt.Window;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.sql.DataSource;
@@ -93,12 +90,23 @@ public class LeasePopUp extends javax.swing.JPanel {
     
     private void setTextsFromLease(Lease l){
         //all values dont have to be setted cause filterCustomer can have all field null
-//        if(l.getStartTime() != null)
-//            jTextField1.setText(l.getStartTime().toString());
-//        if(l.getExpectedEndTime() != null)
-//            jTextField2.setText(l.getExpectedEndTime().toString());
-//        if(l.getRealEndTime() != null) 
-//            jTextField3.setText(l.getRealEndTime().toString());
+        if(l.getStartTime() != null){
+            setDateTimeToComboBox(jComboBox1, jComboBox2, jComboBox3, jComboBox4, jComboBox5,
+                    l.getStartTime().getDayOfMonth(), l.getStartTime().getMonthValue(),
+                    l.getStartTime().getYear(),l.getStartTime().getHour() ,l.getStartTime().getMinute());
+        }
+        if(l.getExpectedEndTime() != null){
+            setDateTimeToComboBox(jComboBox6, jComboBox7, jComboBox8, jComboBox9, jComboBox10,
+                    l.getExpectedEndTime().getDayOfMonth(), l.getExpectedEndTime().getMonthValue(),
+                    l.getExpectedEndTime().getYear(),l.getExpectedEndTime().getHour(),
+                    l.getExpectedEndTime().getMinute());
+        }
+        if(l.getRealEndTime() != null) {
+            setDateTimeToComboBox(jComboBox11, jComboBox12, jComboBox13, jComboBox14, jComboBox15,
+                    l.getRealEndTime().getDayOfMonth(), l.getRealEndTime().getMonthValue(),
+                    l.getRealEndTime().getYear(),l.getRealEndTime().getHour(),
+                    l.getRealEndTime().getMinute());
+        }
         if(l.getPrice() != null)
             jTextField4.setText(l.getPrice().toString());
         if(l.getFee() != null)
@@ -711,7 +719,8 @@ public class LeasePopUp extends javax.swing.JPanel {
             } else {
                 lease.setCustomerId(null);
             }
-        }
+        }else
+            lease.setCustomerId(null);
         //carId
         if(jList2.getSelectedIndex() > 0) {
             Car car = carsModel.getSelectedCar(jList2.getSelectedIndex());
@@ -720,7 +729,9 @@ public class LeasePopUp extends javax.swing.JPanel {
             } else {
                 lease.setCarId(null);
             }
-        }
+        }else
+            lease.setCarId(null);
+        
         //startTime
         if(jComboBox1.getSelectedIndex()>0)
             lease.setStartTime(LocalDateTime.of((int)jComboBox3.getSelectedItem(),
