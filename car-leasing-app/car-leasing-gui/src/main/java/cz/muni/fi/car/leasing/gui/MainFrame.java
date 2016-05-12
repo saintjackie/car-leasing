@@ -17,11 +17,12 @@ import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
-import javax.swing.JDialog;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
+
 import org.apache.commons.dbcp2.BasicDataSource;
 
 
@@ -38,7 +39,10 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form MainFrame
      */
     public MainFrame() {
-        dataSource = setDataSource();
+
+        DataSourceSwingWorker dataSourceSwingWorker = new DataSourceSwingWorker();
+        dataSourceSwingWorker.execute();
+
         initComponents();
          jTabbedPane1.setTitleAt(0, texts.getString("cars"));
          jTabbedPane1.setTitleAt(1, texts.getString("customers"));
@@ -52,7 +56,26 @@ public class MainFrame extends javax.swing.JFrame {
          this.setLocationRelativeTo(null);
          
     }
-    
+
+    private class DataSourceSwingWorker extends SwingWorker<DataSource,Void> {
+
+        @Override
+        protected DataSource doInBackground() throws Exception {
+            return setDataSource();
+        }
+
+        @Override
+        protected void done() {
+            try {
+                dataSource = get();
+            } catch (ExecutionException ex) {
+                // TODO jTextArea.append("Exception thrown in doInBackground(): " + ex.getCause() + "\n");
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+            }
+        }
+    }
+
     public DataSource setDataSource() {
         Properties dbconf = new Properties();
         try {
@@ -85,11 +108,9 @@ public class MainFrame extends javax.swing.JFrame {
                     sb.setLength(0); //clearing sb
                 }
             }
-        } catch (SQLException ex) {
+        } catch (SQLException|IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }
         return ds;
     }
 
