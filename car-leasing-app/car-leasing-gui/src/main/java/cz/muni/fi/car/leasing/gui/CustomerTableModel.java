@@ -8,7 +8,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import javax.sql.DataSource;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -26,7 +28,14 @@ public class CustomerTableModel extends AbstractTableModel{
     public CustomerTableModel(ResourceBundle texts,DataSource dataSource){
         this.texts = texts;  
         customerManager =  new CustomerManagerImpl(dataSource);
-        customers.addAll(customerManager.findAll());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                customers.addAll(customerManager.findAll());
+                return null;
+            }
+        };
+        worker.execute();
     }
 
     @Override
@@ -87,55 +96,93 @@ public class CustomerTableModel extends AbstractTableModel{
     }
     
     public void addCustomer(Customer customer){
-        customerManager.create(customer);
-        
-        customers.add(customer);
-        int lastRow = customers.size() - 1;
-        fireTableRowsInserted(lastRow, lastRow);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                customerManager.create(customer);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                customers.add(customer);
+                int lastRow = customers.size() - 1;
+                fireTableRowsInserted(lastRow, lastRow);
+            }
+        };
+        worker.execute();
+
     }
     
     public void updateCustomer(Customer customer, int selectedRow){
-        customerManager.update(customer);
-        fireTableRowsUpdated(selectedRow,selectedRow);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                customerManager.update(customer);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                fireTableRowsUpdated(selectedRow,selectedRow);
+            }
+        };
+        worker.execute();
     }
     
     public void filterCustomers(){
-        List<Customer> filteredCustomers = null;
-        //fullname
-        if(filterCustomer.getFullName()!= null){
-            filteredCustomers = customerManager.findByName(filterCustomer.getFullName());                
-        }
-        //phoneNumber
-        if(filterCustomer.getPhoneNumber()!= null){
-            if(filteredCustomers == null)
-                filteredCustomers = customerManager.findByPhoneNumber(filterCustomer.getPhoneNumber());
-            else
-                filteredCustomers.retainAll(customerManager.findByPhoneNumber(filterCustomer.getPhoneNumber()));
-        }
-        //birthDate
-        if(filterCustomer.getBirthDate()!= null){
-            if(filteredCustomers == null)
-                filteredCustomers = customerManager.findByBirthDate(filterCustomer.getBirthDate());
-            else
-                filteredCustomers.retainAll(customerManager.findByBirthDate(filterCustomer.getBirthDate()));
-        }
-        //address
-        if(filterCustomer.getAddress() != null){
-            if(filteredCustomers == null)
-                filteredCustomers = customerManager.findByAddress(filterCustomer.getAddress());
-            else
-                filteredCustomers.retainAll(customerManager.findByAddress(filterCustomer.getAddress()));
-        }
-        
-        if(filteredCustomers != null){
-            customers.clear();
-            customers.addAll(filteredCustomers);
-            filtered = true;
-        }else{
-            refresh();
-            filtered = false;
-        }
-            
+        SwingWorker<List<Customer>, Void> worker = new SwingWorker<List<Customer>, Void>() {
+            @Override
+            protected List<Customer> doInBackground() throws Exception {
+                List<Customer> filteredCustomers = null;
+                //fullname
+                if(filterCustomer.getFullName()!= null){
+                    filteredCustomers = customerManager.findByName(filterCustomer.getFullName());
+                }
+                //phoneNumber
+                if(filterCustomer.getPhoneNumber()!= null){
+                    if(filteredCustomers == null)
+                        filteredCustomers = customerManager.findByPhoneNumber(filterCustomer.getPhoneNumber());
+                    else
+                        filteredCustomers.retainAll(customerManager.findByPhoneNumber(filterCustomer.getPhoneNumber()));
+                }
+                //birthDate
+                if(filterCustomer.getBirthDate()!= null){
+                    if(filteredCustomers == null)
+                        filteredCustomers = customerManager.findByBirthDate(filterCustomer.getBirthDate());
+                    else
+                        filteredCustomers.retainAll(customerManager.findByBirthDate(filterCustomer.getBirthDate()));
+                }
+                //address
+                if(filterCustomer.getAddress() != null){
+                    if(filteredCustomers == null)
+                        filteredCustomers = customerManager.findByAddress(filterCustomer.getAddress());
+                    else
+                        filteredCustomers.retainAll(customerManager.findByAddress(filterCustomer.getAddress()));
+                }
+                return filteredCustomers;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Customer> filteredCustomers = get();
+                    if (filteredCustomers != null) {
+                        customers.clear();
+                        customers.addAll(filteredCustomers);
+                        filtered = true;
+                    } else {
+                        refresh();
+                        filtered = false;
+                    }
+                } catch(ExecutionException ex) {
+                    // TODO - DB error handling
+                } catch(InterruptedException ex) {
+                    throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+                }
+            }
+        };
+        worker.execute();
     }
     
     public void removeFilter(){
@@ -157,7 +204,19 @@ public class CustomerTableModel extends AbstractTableModel{
     
     public void refresh(){
         customers.clear();
-        customers.addAll(customerManager.findAll());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                customers.addAll(customerManager.findAll());
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                fireTableDataChanged();
+            }
+        };
+        worker.execute();
     }
     
     public Customer getSelectedCustomer(int row){
@@ -172,7 +231,6 @@ public class CustomerTableModel extends AbstractTableModel{
                 return c;
             }
         }
-        return customerManager.findById(id);
-    }        
-    
+        return null;
+    }
 }

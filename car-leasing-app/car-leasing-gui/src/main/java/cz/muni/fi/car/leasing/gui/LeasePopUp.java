@@ -16,11 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.sql.DataSource;
-import javax.swing.AbstractListModel;
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 /**
  * This file contains 1 jpanel class and 2 abstractListModel classes
@@ -52,8 +48,15 @@ public class LeasePopUp extends javax.swing.JPanel {
         customersModel.addCustomer(null);
         carsModel.addCar(null);
         //examples
-        customersModel.addListOfCustomers(customerManager.findAll());
-        carsModel.addListOfCars(carManager.findAll());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                customersModel.addListOfCustomers(customerManager.findAll());
+                carsModel.addListOfCars(carManager.findAll());
+                return null;
+            }
+        };
+        worker.execute();
         
         switch(action){
             case "add":

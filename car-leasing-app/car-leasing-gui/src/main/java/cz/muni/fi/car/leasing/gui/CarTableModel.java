@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import javax.sql.DataSource;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -26,7 +28,14 @@ public class CarTableModel extends AbstractTableModel{
     public CarTableModel(ResourceBundle texts,DataSource dataSource){
         this.texts = texts;        
         this.carManager = new CarManagerImpl(dataSource);
-        cars.addAll(carManager.findAll());        
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                cars.addAll(carManager.findAll());
+                return null;
+            }
+        };
+        worker.execute();
     }
     
     @Override
@@ -90,63 +99,92 @@ public class CarTableModel extends AbstractTableModel{
         }
     }
 
-    public void addCar(Car car){                
-        carManager.create(car);
-        cars.add(car);
-        int lastRow = cars.size() - 1;
-        fireTableRowsInserted(lastRow, lastRow);
+    public void addCar(Car car){
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                carManager.create(car);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                cars.add(car);
+                int lastRow = cars.size() - 1;
+                fireTableRowsInserted(lastRow, lastRow);
+            }
+        };
+        worker.execute();
     }
     
-    public void filterCars(){       
-        List<Car> filteredCars=null;
-        //type
-        if(filterCar.getType() != null){
-           filteredCars = carManager.findByType(filterCar.getType());
-        }
-        //vendor
-        if(filterCar.getVendor() != null){
-            if(filteredCars==null)
-                filteredCars = carManager.findByVendor(filterCar.getVendor());
-            else{
-                filteredCars.retainAll(carManager.findByVendor(filterCar.getVendor()));
+    public void filterCars(){
+        SwingWorker<List<Car>, Void> worker = new SwingWorker<List<Car>, Void>() {
+            @Override
+            protected List<Car> doInBackground() throws Exception {
+                List<Car> filteredCars = null;
+                //type
+                if(filterCar.getType() != null){
+                    filteredCars = carManager.findByType(filterCar.getType());
+                }
+                //vendor
+                if(filterCar.getVendor() != null){
+                    if(filteredCars==null)
+                        filteredCars = carManager.findByVendor(filterCar.getVendor());
+                    else{
+                        filteredCars.retainAll(carManager.findByVendor(filterCar.getVendor()));
+                    }
+                }
+                //seats
+                if(filterCar.getSeats() != null && filterCar.getSeats() > 0){
+                    if(filteredCars==null)
+                        filteredCars = carManager.findBySeats(filterCar.getSeats());
+                    else{
+                        filteredCars.retainAll(carManager.findBySeats(filterCar.getSeats()));
+                    }
+                }
+                //modelYear
+                if(filterCar.getModelYear()!= null){
+                    if(filteredCars==null)
+                        filteredCars = carManager.findByModelYear(filterCar.getModelYear());
+                    else{
+                        filteredCars.retainAll(carManager.findByModelYear(filterCar.getModelYear()));
+                    }
+                }
+                //registrationPlate
+                if(filterCar.getRegistrationPlate() != null){
+                    if(filteredCars==null){
+                        filteredCars = new ArrayList<>();
+                        Car c = carManager.findByRegistration(filterCar.getRegistrationPlate());
+                        if(c != null)
+                            filteredCars.add(c);
+                    }
+                    else{
+                        filteredCars.retainAll((Collection<?>) carManager.findByRegistration(filterCar.getRegistrationPlate()));
+                    }
+                }
+                return filteredCars;
             }
-        }
-        //seats
-        if(filterCar.getSeats() != null && filterCar.getSeats() > 0){
-            if(filteredCars==null)
-                filteredCars = carManager.findBySeats(filterCar.getSeats());
-            else{
-                filteredCars.retainAll(carManager.findBySeats(filterCar.getSeats()));
+
+            @Override
+            protected void done() {
+                try {
+                    List<Car> filteredCars = get();
+                    if(filteredCars!=null){
+                        cars.clear();
+                        cars.addAll(filteredCars);
+                        filtered = true;
+                    }else{
+                        refresh();
+                        filtered = false;
+                    }
+                } catch(ExecutionException ex) {
+                    // TODO DB error handling
+                } catch(InterruptedException ex) {
+                    throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+                }
             }
-        }
-        //modelYear
-        if(filterCar.getModelYear()!= null){
-            if(filteredCars==null)
-                filteredCars = carManager.findByModelYear(filterCar.getModelYear());
-            else{
-                filteredCars.retainAll(carManager.findByModelYear(filterCar.getModelYear()));               
-            }
-        }        
-        //registrationPlate
-        if(filterCar.getRegistrationPlate() != null){
-            if(filteredCars==null){
-                filteredCars = new ArrayList<>();
-                Car c = carManager.findByRegistration(filterCar.getRegistrationPlate());
-                if(c != null) 
-                    filteredCars.add(c);
-            }            
-            else{
-                filteredCars.retainAll((Collection<?>) carManager.findByRegistration(filterCar.getRegistrationPlate()));
-            }
-        }
-        if(filteredCars!=null){
-            cars.clear();
-            cars.addAll(filteredCars);
-            filtered = true;
-        }else{
-            refresh();
-            filtered = false;
-        }
+        };
+        worker.execute();
     }
     
     public void removeFilter(){
@@ -168,14 +206,36 @@ public class CarTableModel extends AbstractTableModel{
     }
     
     public void updateCar(Car car, int selectedRow){
-        carManager.update(car);
-        fireTableRowsUpdated(selectedRow,selectedRow);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                carManager.update(car);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                fireTableRowsUpdated(selectedRow,selectedRow);
+            }
+        };
+        worker.execute();
     }
     
     public void refresh(){
         cars.clear();
-        cars.addAll(carManager.findAll());
-        fireTableDataChanged();
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                cars.addAll(carManager.findAll());
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                fireTableDataChanged();
+            }
+        };
+        worker.execute();
     }
     
     public Car getSelectedCar(int row){
@@ -190,8 +250,6 @@ public class CarTableModel extends AbstractTableModel{
                 return c;
             }
         }
-        //if doesnt find in list cars, search in database
-        return carManager.findById(id);
-    }    
-        
+        return null;
+    }
 }

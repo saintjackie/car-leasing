@@ -8,7 +8,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import javax.sql.DataSource;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -31,7 +33,14 @@ public class LeaseTableModel extends AbstractTableModel{
         this.carsModel = carsModel;
         this.customersModel = customersModel;
         leaseManager = new LeaseManagerImpl(dataSource);
-        leases.addAll(leaseManager.findAll());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                leases.addAll(leaseManager.findAll());
+                return null;
+            }
+        };
+        worker.execute();
     }
 
     @Override
@@ -105,74 +114,113 @@ public class LeaseTableModel extends AbstractTableModel{
     }
     
     public void addLease(Lease lease){
-        leaseManager.create(lease);
-        leases.add(lease);
-        int lastRow = leases.size() - 1;
-        fireTableRowsInserted(lastRow, lastRow);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                leaseManager.create(lease);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                leases.add(lease);
+                int lastRow = leases.size() - 1;
+                fireTableRowsInserted(lastRow, lastRow);
+            }
+        };
+        worker.execute();
     }
     
     public void updateLease(Lease lease, int selectedRow){
-        leaseManager.update(lease);
-        fireTableRowsUpdated(selectedRow, selectedRow);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                leaseManager.update(lease);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                fireTableRowsUpdated(selectedRow, selectedRow);
+            }
+        };
+        worker.execute();
     }
     
     public void filterLeases(){
-        List<Lease> filteredLeases = null;
-        //carId
-        if(filterLease.getCarId() != null){
-            filteredLeases = leaseManager.findByCar(filterLease.getCarId());
-        }
-        //customerId
-        if(filterLease.getCustomerId() != null){
-            if(filteredLeases == null)
-                filteredLeases = leaseManager.findByCustomer(filterLease.getCustomerId());
-            else
-                filteredLeases.retainAll(leaseManager.findByCustomer(filterLease.getCustomerId()));
-        }
-        //startTime
-        if(filterLease.getStartTime() != null){
-            if(filteredLeases == null)
-                filteredLeases = leaseManager.findByStartTime(filterLease.getStartTime());
-            else
-                filteredLeases.retainAll(leaseManager.findByStartTime(filterLease.getStartTime()));
-        }
-        //expectedEndTime
-        if(filterLease.getExpectedEndTime() != null){
-            if(filteredLeases == null)
-                filteredLeases = leaseManager.findByExpectedEndTime(filterLease.getExpectedEndTime());
-            else
-                filteredLeases.retainAll(leaseManager.findByExpectedEndTime(filterLease.getExpectedEndTime()));
-        }
-        //realEndTime
-        if(filterLease.getRealEndTime() != null){
-            if(filteredLeases == null)
-                filteredLeases = leaseManager.findByRealEndTime(filterLease.getRealEndTime());
-            else
-                filteredLeases.retainAll(leaseManager.findByRealEndTime(filterLease.getRealEndTime()));
-        }
-        //price
-        if(filterLease.getPrice() != null){
-            if(filteredLeases == null)
-                filteredLeases = leaseManager.findByPrice(filterLease.getPrice());
-            else
-                filteredLeases.retainAll(leaseManager.findByPrice(filterLease.getPrice()));
-        }
-        //fee
-        if(filterLease.getFee() != null){
-            if(filteredLeases == null)
-                filteredLeases = leaseManager.findByFee(filterLease.getFee());
-            else
-                filteredLeases.retainAll(leaseManager.findByFee(filterLease.getFee()));
-        }
-        
-        if(filteredLeases !=null){
-            leases.clear();
-            leases.addAll(filteredLeases);
-            filtered = true;
-        }else{
-            refresh();
-            filtered = false;
-        }
+        SwingWorker<List<Lease>, Void> worker = new SwingWorker<List<Lease>, Void>() {
+            @Override
+            protected List<Lease> doInBackground() throws Exception {
+                List<Lease> filteredLeases = null;
+                //carId
+                if(filterLease.getCarId() != null){
+                    filteredLeases = leaseManager.findByCar(filterLease.getCarId());
+                }
+                //customerId
+                if(filterLease.getCustomerId() != null){
+                    if(filteredLeases == null)
+                        filteredLeases = leaseManager.findByCustomer(filterLease.getCustomerId());
+                    else
+                        filteredLeases.retainAll(leaseManager.findByCustomer(filterLease.getCustomerId()));
+                }
+                //startTime
+                if(filterLease.getStartTime() != null){
+                    if(filteredLeases == null)
+                        filteredLeases = leaseManager.findByStartTime(filterLease.getStartTime());
+                    else
+                        filteredLeases.retainAll(leaseManager.findByStartTime(filterLease.getStartTime()));
+                }
+                //expectedEndTime
+                if(filterLease.getExpectedEndTime() != null){
+                    if(filteredLeases == null)
+                        filteredLeases = leaseManager.findByExpectedEndTime(filterLease.getExpectedEndTime());
+                    else
+                        filteredLeases.retainAll(leaseManager.findByExpectedEndTime(filterLease.getExpectedEndTime()));
+                }
+                //realEndTime
+                if(filterLease.getRealEndTime() != null){
+                    if(filteredLeases == null)
+                        filteredLeases = leaseManager.findByRealEndTime(filterLease.getRealEndTime());
+                    else
+                        filteredLeases.retainAll(leaseManager.findByRealEndTime(filterLease.getRealEndTime()));
+                }
+                //price
+                if(filterLease.getPrice() != null){
+                    if(filteredLeases == null)
+                        filteredLeases = leaseManager.findByPrice(filterLease.getPrice());
+                    else
+                        filteredLeases.retainAll(leaseManager.findByPrice(filterLease.getPrice()));
+                }
+                //fee
+                if(filterLease.getFee() != null){
+                    if(filteredLeases == null)
+                        filteredLeases = leaseManager.findByFee(filterLease.getFee());
+                    else
+                        filteredLeases.retainAll(leaseManager.findByFee(filterLease.getFee()));
+                }
+                return filteredLeases;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Lease> filteredLeases = get();
+                    if (filteredLeases != null) {
+                        leases.clear();
+                        leases.addAll(filteredLeases);
+                        filtered = true;
+                    } else {
+                        refresh();
+                        filtered = false;
+                    }
+                } catch(ExecutionException ex) {
+                    // TODO DB error handling
+                } catch(InterruptedException ex) {
+                    throw new RuntimeException("Operation interrupted (this should never happen)",ex);
+                }
+            }
+        };
+        worker.execute();
     }
     
     
@@ -199,7 +247,14 @@ public class LeaseTableModel extends AbstractTableModel{
     
     public void refresh(){
         leases.clear();
-        leases.addAll(leaseManager.findAll());
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                leases.addAll(leaseManager.findAll());
+                return null;
+            }
+        };
+        worker.execute();
     }
     
     public Lease getSelectedLease(int row){
