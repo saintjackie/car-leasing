@@ -224,7 +224,22 @@ public class CustomerTableModel extends AbstractTableModel{
         };
         worker.execute();
     }
-    
+    public void deleteCustomer(int row){
+        SwingWorker<Void,Void> worker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                customerManager.delete(customers.get(row).getId());
+                return null;
+            }
+            @Override
+            protected void done() {
+                customers.remove(row);
+                fireTableDataChanged();
+            }
+        };
+        worker.execute();
+    }
     public Customer getSelectedCustomer(int row){
         if(row>=customers.size() || row <0)
             return null;

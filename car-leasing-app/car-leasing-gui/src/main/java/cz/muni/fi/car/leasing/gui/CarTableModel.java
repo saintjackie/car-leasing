@@ -244,6 +244,23 @@ public class CarTableModel extends AbstractTableModel{
         worker.execute();
     }
     
+    public void deleteCar(int row){
+        SwingWorker<Void,Void> worker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                carManager.delete(cars.get(row).getId());
+                return null;
+            }
+            @Override
+            protected void done() {
+                cars.remove(row);
+                fireTableDataChanged();
+            }
+        };
+        worker.execute();
+    }
+    
     public Car getSelectedCar(int row){
         if(row>=cars.size() || row<0)
             return null;

@@ -165,22 +165,16 @@ public class LeaseTableModel extends AbstractTableModel{
             @Override
             protected Void doInBackground() throws Exception {                
                 leaseManager.update(lease);
-                if(!cars.get(selectedRow).getId().equals(lease.getCarId())){ //if carId is changed
-                    car = carManager.findById(lease.getCarId());
-                }
-                if(!customers.get(selectedRow).getId().equals(lease.getCustomerId())){ //if customerId is changed
-                    customer = customerManager.findById(lease.getCustomerId());
-                }
+                car = carManager.findById(lease.getCarId());                
+                customer = customerManager.findById(lease.getCustomerId());                
                 return null;
             }
 
             @Override
-            protected void done() {
-                if(car!=null)
-                    cars.set(selectedRow,car);
-                if(customer!=null)
-                    customers.set(selectedRow,customer);
-                fireTableRowsUpdated(selectedRow, selectedRow);
+            protected void done() {                
+                cars.set(selectedRow, car);
+                customers.set(selectedRow, customer);
+                fireTableDataChanged();
             }
         };
         worker.execute();
@@ -329,7 +323,54 @@ public class LeaseTableModel extends AbstractTableModel{
         worker.execute();
     }
     
+    public void deleteLease(int row){
+        SwingWorker<Void,Void> worker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                leaseManager.delete(leases.get(row).getId());
+                return null;
+            }
+            @Override
+            protected void done() {
+                leases.remove(row);
+                cars.remove(row);
+                customers.remove(row);
+                fireTableDataChanged();
+            }
+        };
+        worker.execute();
+    }
+    
     public Lease getSelectedLease(int row){
         return leases.get(row);
     }        
+    
+    public Car getSelectedCar(int row){
+        return cars.get(row);
+    }
+    
+    public Customer getSelectedCustomer(int row){
+        return customers.get(row);
+    }
+    
+    public void deleteCarWithId(Long id){
+        for(int i=0;i<cars.size();i++){
+            if(cars.get(i)!=null){
+                if(cars.get(i).getId().equals(id)){
+                    cars.set(i, null);
+                }
+            }
+        }
+    }
+    
+    public void deleteCustomerWithId(Long id){
+        for(int i=0;i<customers.size();i++){
+            if(customers.get(i)!=null){
+                if(customers.get(i).getId().equals(id)){
+                    customers.set(i, null);
+                }
+            }
+        }
+    }
 }

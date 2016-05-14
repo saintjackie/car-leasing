@@ -37,10 +37,8 @@ public class CarManagerImpl implements CarManager {
             throw new NullPointerException("car cannot be null");
         }
 
-        try (Connection connection = dataSource.getConnection()) {
-
-            connection.setAutoCommit(false);
-            try (PreparedStatement st = connection.prepareStatement(
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
                     "INSERT INTO CAR (type,vendor,modelYear,seats,registrationPlate) VALUES (?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
 
@@ -51,24 +49,17 @@ public class CarManagerImpl implements CarManager {
                 st.setString(5, car.getRegistrationPlate());
 
                 int addedRow = st.executeUpdate();
-                connection.commit();
+                
                 if (addedRow != 1) {
-                    throw new SQLException("more rows inserted instead of 1 row!");
+                    throw new DBException("more rows inserted instead of 1 row!");
                 }
 
                 ResultSet keyRS = st.getGeneratedKeys();
                 car.setId(getKey(keyRS));
 
-            } catch (SQLException ex) {
-                log.error("Error while creating Car {}", car, ex);
-                connection.rollback();
-            } finally {
-
-                connection.setAutoCommit(true);
-            }
-
         } catch (SQLException ex) {
             log.error("Error while creating Car {}", car, ex);
+            throw new DBException("Error when inserting following car: " + car, ex);
         }
 
     }
@@ -93,32 +84,23 @@ public class CarManagerImpl implements CarManager {
             throw new IllegalArgumentException("id cannot be negative");
         }
 
-        try (Connection connection = dataSource.getConnection()) {
-
-            connection.setAutoCommit(false);
-            try (PreparedStatement st = connection.prepareStatement(
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
                     "DELETE FROM CAR WHERE id = ?")) {
 
                 st.setLong(1, carId);
 
                 int count = st.executeUpdate();
-                connection.commit();
-                if (count == 0) {
-                    throw new SQLException("entity not found");
-                }
 
-            } catch (SQLException ex) {
-                log.error("Error while deleting car with id {}", carId, ex);
-                connection.rollback();
-            } finally {
-                connection.setAutoCommit(true);
-            }
+                if (count == 0) {
+                    log.error("Error while deleting car with id {} - not found", carId);
+                    throw new EntityNotFoundException("Failed to find / delete customer with ID: " + carId);
+                }
 
         } catch (SQLException ex) {
             log.error("Error while deleting car with id {}", carId, ex);
+            throw new DBException("Error when deleting car with following ID: " + carId, ex);
         }
-
-
     }
 
     @Override
@@ -128,10 +110,8 @@ public class CarManagerImpl implements CarManager {
             throw new NullPointerException("car cannot be null");
         }
 
-        try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement st = connection.prepareStatement(
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement st = connection.prepareStatement(
                     "UPDATE CAR SET type = ?, vendor = ?, modelYear = ?, seats = ?, registrationPlate = ? WHERE id = ?")) {
 
                 st.setString(1, car.getType());
@@ -142,20 +122,14 @@ public class CarManagerImpl implements CarManager {
                 st.setLong(6, car.getId());
 
                 int count = st.executeUpdate();
-                connection.commit();
+
                 if (count != 1) {
-                    throw new SQLException("more rows inserted instead of 1 row!");
+                    log.error("Error while updating car with id {} - more rows affected", car.getId());
+                    throw new DBException("More than 1 row updated: " + count);
                 }
-
-            } catch (SQLException ex) {
-                log.error("Error while updating Car {}", car);
-                connection.rollback();
-            } finally {
-                connection.setAutoCommit(true);
-            }
-
         } catch (SQLException ex) {
             log.error("Error while updating Car {}", car);
+            throw new DBException("Error when updating following car: " + car.getId(), ex);
         }
     }
 
@@ -177,10 +151,9 @@ public class CarManagerImpl implements CarManager {
                 return null;
             }
 
-
         } catch (SQLException ex) {
             log.error("Error while retrieving car with id {}", carId);
-            return null;
+            throw new DBException("Error when retrieving car with following id: " + carId, ex);
         }
     }
 
@@ -202,7 +175,7 @@ public class CarManagerImpl implements CarManager {
 
         } catch (SQLException ex) {
             log.error("Error while retrieving car with type {}", type, ex);
-            return null;
+            throw new DBException("Error when retrieving car with following type: " + type, ex);
         }
     }
 
@@ -223,7 +196,7 @@ public class CarManagerImpl implements CarManager {
 
         } catch (SQLException ex) {
             log.error("Error while retrieving all cars", ex);
-            return null;
+            throw new DBException("Error when retrieving list of all cars", ex);
         }
     }
 
@@ -245,7 +218,7 @@ public class CarManagerImpl implements CarManager {
 
         } catch (SQLException ex) {
             log.error("Error while retrieving cars with seats number of {}", seats, ex);
-            return null;
+            throw new DBException("Error while retrieving cars with seats number of:" + seats, ex);
         }
     }
     
@@ -267,7 +240,7 @@ public class CarManagerImpl implements CarManager {
 
         } catch (SQLException ex) {
             log.error("Error while retrieving cars with modelYear number of {}", year, ex);
-            return null;
+            throw new DBException("Error while retrieving cars with modelYear number of:" + year, ex);
         }
     }
 
@@ -289,7 +262,7 @@ public class CarManagerImpl implements CarManager {
 
         } catch (SQLException ex) {
             log.error("Error while retrieving cars with vendor {}", vendor, ex);
-            return null;
+            throw new DBException("Error while retrieving cars with vendor:" + vendor, ex);
         }
     }
 
@@ -311,7 +284,7 @@ public class CarManagerImpl implements CarManager {
 
         } catch (SQLException ex) {
             log.error("Error while retrieving cars with registration plate {}", registrationPlate, ex);
-            return null;
+            throw new DBException("Error while retrieving cars with registration plate:" + registrationPlate, ex);
         }
     }
 

@@ -1,8 +1,14 @@
 package cz.muni.fi.car.leasing.gui;
 
 import cz.muni.fi.car.leasing.Car;
+import cz.muni.fi.car.leasing.CarManager;
+import cz.muni.fi.car.leasing.CarManagerImpl;
 import cz.muni.fi.car.leasing.Customer;
+import cz.muni.fi.car.leasing.CustomerManager;
+import cz.muni.fi.car.leasing.CustomerManagerImpl;
 import cz.muni.fi.car.leasing.Lease;
+import cz.muni.fi.car.leasing.LeaseManager;
+import cz.muni.fi.car.leasing.LeaseManagerImpl;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -14,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -22,6 +30,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -59,10 +69,13 @@ public class MainFrame extends javax.swing.JFrame {
                 jTabbedPane1.setTitleAt(0, texts.getString("cars"));
                 jTabbedPane1.setTitleAt(1, texts.getString("customers"));
                 jTabbedPane1.setTitleAt(2, texts.getString("leasings"));
+                setDeleteAndEditButtonEnabled(false);
 
                 jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 jTable2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 jTable3.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                setListSelectionListeners();
+                
                 jButton3.setEnabled(false);
                 jMenuItem6.setEnabled(false);
                 setLocationRelativeTo(null);
@@ -118,6 +131,46 @@ public class MainFrame extends javax.swing.JFrame {
         }
         return ds;
     }
+    
+    private void setListSelectionListeners(){
+        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                    public void valueChanged(ListSelectionEvent lse) {
+                        if (!lse.getValueIsAdjusting()) {
+                            if(jTable1.getSelectedRow()<0)
+                                setDeleteAndEditButtonEnabled(false);
+                            else
+                                setDeleteAndEditButtonEnabled(true);                            
+                        }
+                    }
+                });
+        jTable2.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                    public void valueChanged(ListSelectionEvent lse) {
+                        if (!lse.getValueIsAdjusting()) {
+                            if(jTable2.getSelectedRow()<0)
+                                setDeleteAndEditButtonEnabled(false);
+                            else
+                                setDeleteAndEditButtonEnabled(true);                            
+                        }
+                    }
+                });
+        jTable3.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                    public void valueChanged(ListSelectionEvent lse) {
+                        if (!lse.getValueIsAdjusting()) {
+                            if(jTable3.getSelectedRow()<0)
+                                setDeleteAndEditButtonEnabled(false);
+                            else
+                                setDeleteAndEditButtonEnabled(true);                            
+                        }
+                    }
+                });
+    }
+    
+    private void setDeleteAndEditButtonEnabled(boolean value){
+            jButton6.setEnabled(value);
+            jMenuItem3.setEnabled(value);
+            jButton1.setEnabled(value);
+            jMenuItem1.setEnabled(value);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -133,6 +186,7 @@ public class MainFrame extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -149,6 +203,7 @@ public class MainFrame extends javax.swing.JFrame {
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("texts"); // NOI18N
@@ -189,6 +244,17 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(jButton4);
+
+        jButton6.setText(bundle.getString("delete")); // NOI18N
+        jButton6.setFocusable(false);
+        jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton6);
 
         jButton5.setText("Add example data");
         jButton5.setFocusable(false);
@@ -271,6 +337,9 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
         jMenu2.add(jMenuItem7);
+
+        jMenuItem3.setText(bundle.getString("delete")); // NOI18N
+        jMenu2.add(jMenuItem3);
 
         jMenuBar1.add(jMenu2);
 
@@ -357,55 +426,76 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        //add example data
-        //cars
-        Random rand = new Random();
-        String[] types = new String[]{"Superb","X6","Megane","Evolution","Focus","i30","a6"};
-        String[] vendors = new String[]{"Škoda","BMW","Renault","Mitsubishi","Ford","Huyndai","Audi"};
-        int[] modelYears = new int[]{2006,2007,2008,2009,2010,2011,2012};
-        String[] regisPlates = new String[]{"ANO 1234","NEE 9876","KIN 0001","SIL 3467","BON 4598","SUN 1246","UFO 4577"};
-        int[] seats = new int[]{4,5,6,2,4,5,6};
-        Car c;
-        for(int i=0;i<7;i++){
-            c = new Car();
-            c.setType(types[i]);
-            c.setVendor(vendors[i]);
-            c.setSeats(seats[i]);
-            c.setModelYear(modelYears[i]);
-            c.setRegistrationPlate(regisPlates[i]);
-            ((CarTableModel)jTable1.getModel()).addCar(c);
-        }       
-        //customers
-        String[] fullNames = new String[]{"Jaromír Pažitka","Pavel Brambora","Zuzana Petržel","Vanesa Kmín"};
-        String[] phones = new String[]{"123 456 678","987 654 321","222 333 444","111 999 000","234 977 009"};
-        String[] births = new String[]{"1987-09-03","1990-11-23","1975-07-09","1968-01-27"};
-        String[] addresses = new String[]{"Olša 346, Olomouc","Trnitá 2367, Praha","Férová 125, Brno","Lesná 346, Ostrava"};
-        Customer cus;
-        for(int i=0;i<4;i++){
-            cus = new Customer();
-            cus.setFullName(fullNames[i]);
-            cus.setPhoneNumber(phones[i]);
-            cus.setBirthDate(LocalDate.parse(births[i]));
-            cus.setAddress(addresses[i]);
-            ((CustomerTableModel)jTable2.getModel()).addCustomer(cus);
-        }
-        //leases
-        String[] dateTimes = new String[]{"2016-01-02T10:00","2016-05-26T12:00","2016-03-07T13:00","2015-12-23T12:00","2015-09-12T14:00"};
-        String[] prices = new String[]{"1999","2999","2239","999","487","6500","8000"};
-        String[] fees = new String[]{"299","199","99","1000","1099"};
-        Lease l;
-        for(int i=0;i<4;i++){
-            l = new Lease();
-            l.setCarId(new Long(i+1));
-            l.setCustomerId(new Long(i+1));
-            l.setStartTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
-            l.setExpectedEndTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
-            l.setRealEndTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
-            l.setPrice(new BigDecimal(prices[rand.nextInt(prices.length)]));
-            l.setFee(new BigDecimal(fees[rand.nextInt(fees.length)]));            
-            ((LeaseTableModel)jTable3.getModel()).addLease(l);
-        }
-        
+        //add example data        
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {            
+            @Override
+            protected Void doInBackground() throws Exception {
+                Random rand = new Random();
+                CarManager carManager = new CarManagerImpl(dataSource);
+                CustomerManager customerManager = new CustomerManagerImpl(dataSource);
+                LeaseManager leaseManager = new LeaseManagerImpl(dataSource);
+                //cars
+                String[] types = new String[]{"Superb","X6","Megane","Evolution","Focus","i30","a6"};
+                String[] vendors = new String[]{"Škoda","BMW","Renault","Mitsubishi","Ford","Huyndai","Audi"};
+                int[] modelYears = new int[]{2006,2007,2008,2009,2010,2011,2012};
+                String[] regisPlates = new String[]{"ANO 1234","NEE 9876","KIN 0001","SIL 3467","BON 4598","SUN 1246","UFO 4577"};
+                int[] seats = new int[]{4,5,6,2,4,5,6};
+                List<Car> cars = new ArrayList<>();
+                Car c;
+                for(int i=0;i<7;i++){
+                    c = new Car();
+                    c.setType(types[i]);
+                    c.setVendor(vendors[i]);
+                    c.setSeats(seats[i]);
+                    c.setModelYear(modelYears[i]);
+                    c.setRegistrationPlate(regisPlates[i]);
+                    cars.add(c);
+                    carManager.create(c);
+                }       
+                //customers
+                String[] fullNames = new String[]{"Jaromír Pažitka","Pavel Brambora","Zuzana Petržel","Vanesa Kmín"};
+                String[] phones = new String[]{"123 456 678","987 654 321","222 333 444","111 999 000","234 977 009"};
+                String[] births = new String[]{"1987-09-03","1990-11-23","1975-07-09","1968-01-27"};
+                String[] addresses = new String[]{"Olša 346, Olomouc","Trnitá 2367, Praha","Férová 125, Brno","Lesná 346, Ostrava"};
+                Customer cus;
+                List<Customer> customers = new ArrayList<>();
+                for(int i=0;i<4;i++){
+                    cus = new Customer();
+                    cus.setFullName(fullNames[i]);
+                    cus.setPhoneNumber(phones[i]);
+                    cus.setBirthDate(LocalDate.parse(births[i]));
+                    cus.setAddress(addresses[i]);
+                    customers.add(cus);
+                    customerManager.create(cus);
+                }
+                //leases
+                String[] dateTimes = new String[]{"2016-01-02T10:00","2016-05-26T12:00","2016-03-07T13:00","2015-12-23T12:00","2015-09-12T14:00"};
+                String[] prices = new String[]{"1999","2999","2239","999","487","6500","8000"};
+                String[] fees = new String[]{"299","199","99","1000","1099"};
+                Lease l;
+                for(int i=0;i<4;i++){
+                    l = new Lease();
+                    l.setCarId((cars.get(rand.nextInt(cars.size())).getId()));
+                    l.setCustomerId(customers.get(rand.nextInt(customers.size())).getId());
+                    l.setStartTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
+                    l.setExpectedEndTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
+                    l.setRealEndTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
+                    l.setPrice(new BigDecimal(prices[rand.nextInt(prices.length)]));
+                    l.setFee(new BigDecimal(fees[rand.nextInt(fees.length)]));            
+                    leaseManager.create(l);
+                }
+                return null;
+            }
+            
+            @Override
+            protected void done() {
+                ((CarTableModel)jTable1.getModel()).refresh();
+                ((CustomerTableModel)jTable2.getModel()).refresh();
+                ((LeaseTableModel)jTable3.getModel()).refresh();
+            }
+        };
+        worker.execute();
+
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -451,12 +541,24 @@ public class MainFrame extends javax.swing.JFrame {
         switch(jTabbedPane1.getSelectedIndex()){
             case 0: //car pane
                 setRemoveFilterButtonEnabled(((CarTableModel)jTable1.getModel()).isFiltered());
+                if(jTable1.getSelectedRow()<0)
+                    setDeleteAndEditButtonEnabled(false);
+                else
+                    setDeleteAndEditButtonEnabled(true);
                 break;
             case 1: //customer pane
                 setRemoveFilterButtonEnabled(((CustomerTableModel)jTable2.getModel()).isFiltered());
+                if(jTable2.getSelectedRow()<0)
+                    setDeleteAndEditButtonEnabled(false);
+                else
+                    setDeleteAndEditButtonEnabled(true);
                 break;
             case 2: //lease pane
                 setRemoveFilterButtonEnabled(((LeaseTableModel)jTable3.getModel()).isFiltered());
+                if(jTable3.getSelectedRow()<0)
+                    setDeleteAndEditButtonEnabled(false);
+                else
+                    setDeleteAndEditButtonEnabled(true);
                 break;
         }
         
@@ -469,6 +571,62 @@ public class MainFrame extends javax.swing.JFrame {
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         jButton3ActionPerformed(evt);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        //delete
+        String[] options = new String[]{texts.getString("ok"),texts.getString("cancel")}; 
+        int row,choice;
+        switch(jTabbedPane1.getSelectedIndex()){
+            case 0: //car pane                               
+                choice = JOptionPane.showOptionDialog(null,
+                        texts.getString("deleteCarMessage"),
+                        texts.getString("delete"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[1]);
+                if(choice==0){
+                    //delete from list of cars in LeaseTableModel
+                    Car c = ((CarTableModel)jTable1.getModel()).getSelectedCar(jTable1.getSelectedRow());
+                    ((LeaseTableModel)jTable3.getModel()).deleteCarWithId(c.getId());
+                    //delete from database
+                    ((CarTableModel)jTable1.getModel()).deleteCar(jTable1.getSelectedRow());                    
+                }
+                break;
+            case 1: //customer pane
+                choice = JOptionPane.showOptionDialog(null,
+                        texts.getString("deleteCustomerMessage"),
+                        texts.getString("delete"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[1]);
+                if(choice==0){
+                    //delete from list of customers in LeaseTableModel
+                    Customer cus = ((CustomerTableModel)jTable2.getModel()).getSelectedCustomer(jTable2.getSelectedRow());
+                    ((LeaseTableModel)jTable3.getModel()).deleteCustomerWithId(cus.getId());
+                    //delete from database
+                    ((CustomerTableModel)jTable2.getModel()).deleteCustomer(jTable2.getSelectedRow());
+                }
+                break;
+            case 2: //lease pane
+                row = jTable3.getSelectedRow();
+                Lease l = ((LeaseTableModel)jTable3.getModel()).getSelectedLease(row);
+                choice = JOptionPane.showOptionDialog(null,
+                        texts.getString("deleteLeaseMessage"),
+                        texts.getString("delete"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[1]);
+                if(choice==0)
+                    ((LeaseTableModel)jTable3.getModel()).deleteLease(jTable3.getSelectedRow());
+                break;
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     public void setRemoveFilterButtonEnabled(boolean val){
         jButton3.setEnabled(val);
@@ -582,11 +740,13 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
