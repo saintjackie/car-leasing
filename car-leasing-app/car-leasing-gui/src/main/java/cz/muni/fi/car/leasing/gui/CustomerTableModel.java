@@ -130,7 +130,7 @@ public class CustomerTableModel extends AbstractTableModel{
         worker.execute();
     }
     
-    public void filterCustomers(){
+    public void filterCustomers(MainFrame mf){
         SwingWorker<List<Customer>, Void> worker = new SwingWorker<List<Customer>, Void>() {
             @Override
             protected List<Customer> doInBackground() throws Exception {
@@ -175,8 +175,14 @@ public class CustomerTableModel extends AbstractTableModel{
                         refresh();
                         filtered = false;
                     }
+                    mf.setRemoveFilterButtonEnabled(filtered);
+                    fireTableDataChanged();
                 } catch(ExecutionException ex) {
                     // TODO - DB error handling
+                    JOptionPane.showMessageDialog(null,
+                        "Connection to database failed",
+                        "Filter error",
+                        JOptionPane.WARNING_MESSAGE);
                 } catch(InterruptedException ex) {
                     throw new RuntimeException("Operation interrupted (this should never happen)",ex);
                 }
@@ -223,14 +229,5 @@ public class CustomerTableModel extends AbstractTableModel{
         if(row>=customers.size() || row <0)
             return null;
         return customers.get(row);
-    }
-    
-    public Customer getCustomerWithId(Long id){
-        for(Customer c: customers){
-            if(c.getId().equals(id)){
-                return c;
-            }
-        }
-        return null;
-    }
+    }    
 }

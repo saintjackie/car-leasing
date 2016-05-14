@@ -360,8 +360,9 @@ public class CustomerPopUp extends javax.swing.JPanel {
         }
 
         fillUpCustomerForFilteringFromTextInput();
-        ((CustomerTableModel)table.getModel()).filterCustomers();
-        table.updateUI();
+        Window w = SwingUtilities.getWindowAncestor(SwingUtilities.getWindowAncestor(this));
+        ((CustomerTableModel)table.getModel()).filterCustomers((MainFrame)w);
+        
         
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();

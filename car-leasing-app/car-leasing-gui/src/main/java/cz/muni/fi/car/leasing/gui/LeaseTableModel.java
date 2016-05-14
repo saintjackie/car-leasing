@@ -1,5 +1,11 @@
 package cz.muni.fi.car.leasing.gui;
 
+import cz.muni.fi.car.leasing.Car;
+import cz.muni.fi.car.leasing.CarManager;
+import cz.muni.fi.car.leasing.CarManagerImpl;
+import cz.muni.fi.car.leasing.Customer;
+import cz.muni.fi.car.leasing.CustomerManager;
+import cz.muni.fi.car.leasing.CustomerManagerImpl;
 import cz.muni.fi.car.leasing.Lease;
 import cz.muni.fi.car.leasing.LeaseManager;
 import cz.muni.fi.car.leasing.LeaseManagerImpl;
@@ -20,23 +26,30 @@ import javax.swing.table.AbstractTableModel;
 public class LeaseTableModel extends AbstractTableModel{
     
     private final List<Lease> leases = new ArrayList<>();
+    private final List<Car> cars = new ArrayList<>();
+    private final List<Customer> customers = new ArrayList<>();
     private final ResourceBundle texts;
-    private final CarTableModel carsModel;
-    private final CustomerTableModel customersModel;
     private final LeaseManager leaseManager;
+    private final CarManager carManager;
+    private final CustomerManager customerManager;
     private final Lease filterLease = new Lease();
     private boolean filtered=false;
     
     public LeaseTableModel(CarTableModel carsModel, CustomerTableModel customersModel,
             ResourceBundle texts,DataSource dataSource){
         this.texts = texts;
-        this.carsModel = carsModel;
-        this.customersModel = customersModel;
         leaseManager = new LeaseManagerImpl(dataSource);
+        carManager = new CarManagerImpl(dataSource);
+        customerManager = new CustomerManagerImpl(dataSource);
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
                 leases.addAll(leaseManager.findAll());
+                for(Lease l : leases){
+                    cars.add(carManager.findById(l.getCarId()));
+                    customers.add(customerManager.findById(l.getCustomerId()));
+                }
+                
                 return null;
             }
         };
@@ -84,8 +97,16 @@ public class LeaseTableModel extends AbstractTableModel{
         Lease lease = leases.get(rowIndex);
         
         switch(columnIndex){
-            case 0: return carsModel.getCarWithId(lease.getCarId());
-            case 1: return customersModel.getCustomerWithId(lease.getCustomerId());
+            case 0:
+                if(rowIndex <cars.size())
+                    if(cars.get(rowIndex)!=null)
+                        return cars.get(rowIndex).toString();
+                return null;
+            case 1: 
+                if(rowIndex < customers.size())
+                    if(customers.get(rowIndex)!=null)
+                        return customers.get(rowIndex).toString();
+                return null;
             case 2: return lease.getStartTime();
             case 3: return lease.getExpectedEndTime();
             case 4: return lease.getRealEndTime();
@@ -115,15 +136,21 @@ public class LeaseTableModel extends AbstractTableModel{
     
     public void addLease(Lease lease){
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            Car car=null;
+            Customer customer=null;
             @Override
             protected Void doInBackground() throws Exception {
                 leaseManager.create(lease);
+                car = carManager.findById(lease.getCarId());
+                customer = customerManager.findById(lease.getCustomerId());
                 return null;
             }
 
             @Override
             protected void done() {
                 leases.add(lease);
+                cars.add(car);
+                customers.add(customer);
                 int lastRow = leases.size() - 1;
                 fireTableRowsInserted(lastRow, lastRow);
             }
@@ -133,22 +160,36 @@ public class LeaseTableModel extends AbstractTableModel{
     
     public void updateLease(Lease lease, int selectedRow){
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            Car car=null;
+            Customer customer=null;
             @Override
-            protected Void doInBackground() throws Exception {
+            protected Void doInBackground() throws Exception {                
                 leaseManager.update(lease);
+                if(!cars.get(selectedRow).getId().equals(lease.getCarId())){ //if carId is changed
+                    car = carManager.findById(lease.getCarId());
+                }
+                if(!customers.get(selectedRow).getId().equals(lease.getCustomerId())){ //if customerId is changed
+                    customer = customerManager.findById(lease.getCustomerId());
+                }
                 return null;
             }
 
             @Override
             protected void done() {
+                if(car!=null)
+                    cars.set(selectedRow,car);
+                if(customer!=null)
+                    customers.set(selectedRow,customer);
                 fireTableRowsUpdated(selectedRow, selectedRow);
             }
         };
         worker.execute();
     }
     
-    public void filterLeases(){
+    public void filterLeases(MainFrame mf){
         SwingWorker<List<Lease>, Void> worker = new SwingWorker<List<Lease>, Void>() {
+            List<Car> filteredCars=new ArrayList<>();
+            List<Customer> filteredCustomers=new ArrayList<>();
             @Override
             protected List<Lease> doInBackground() throws Exception {
                 List<Lease> filteredLeases = null;
@@ -198,6 +239,16 @@ public class LeaseTableModel extends AbstractTableModel{
                     else
                         filteredLeases.retainAll(leaseManager.findByFee(filterLease.getFee()));
                 }
+                //fillup cars and cutomers according filteredLeases
+                if(filteredLeases != null) {
+                    for(Lease l : filteredLeases) {
+                        filteredCars.add(carManager.findById(l.getCarId()));
+                        filteredCustomers.add(customerManager.findById(l.getCustomerId()));
+                    }
+                }else{
+                    filteredCars = null;
+                    filteredCustomers = null;
+                }
                 return filteredLeases;
             }
 
@@ -208,13 +259,23 @@ public class LeaseTableModel extends AbstractTableModel{
                     if (filteredLeases != null) {
                         leases.clear();
                         leases.addAll(filteredLeases);
+                        cars.clear();
+                        cars.addAll(filteredCars);
+                        customers.clear();
+                        customers.addAll(filteredCustomers);
                         filtered = true;
                     } else {
                         refresh();
                         filtered = false;
                     }
+                    mf.setRemoveFilterButtonEnabled(filtered);
+                    fireTableDataChanged();
                 } catch(ExecutionException ex) {
                     // TODO DB error handling
+                    JOptionPane.showMessageDialog(null,
+                        "Connection to database failed",
+                        "Filter error",
+                        JOptionPane.WARNING_MESSAGE);
                 } catch(InterruptedException ex) {
                     throw new RuntimeException("Operation interrupted (this should never happen)",ex);
                 }
@@ -247,11 +308,22 @@ public class LeaseTableModel extends AbstractTableModel{
     
     public void refresh(){
         leases.clear();
+        cars.clear();
+        customers.clear();
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
                 leases.addAll(leaseManager.findAll());
+                for(Lease l : leases){
+                    cars.add(carManager.findById(l.getCarId()));
+                    customers.add(customerManager.findById(l.getCustomerId()));
+                }
                 return null;
+            }
+            
+            @Override
+            protected void done() {
+                fireTableDataChanged();
             }
         };
         worker.execute();

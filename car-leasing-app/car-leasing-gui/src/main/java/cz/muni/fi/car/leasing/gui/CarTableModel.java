@@ -117,7 +117,7 @@ public class CarTableModel extends AbstractTableModel{
         worker.execute();
     }
     
-    public void filterCars(){
+    public void filterCars(MainFrame mf){
         SwingWorker<List<Car>, Void> worker = new SwingWorker<List<Car>, Void>() {
             @Override
             protected List<Car> doInBackground() throws Exception {
@@ -177,8 +177,14 @@ public class CarTableModel extends AbstractTableModel{
                         refresh();
                         filtered = false;
                     }
+                    mf.setRemoveFilterButtonEnabled(filtered);
+                    fireTableDataChanged();
                 } catch(ExecutionException ex) {
                     // TODO DB error handling
+                    JOptionPane.showMessageDialog(null,
+                        "Connection to database failed",
+                        "Filter error",
+                        JOptionPane.WARNING_MESSAGE);
                 } catch(InterruptedException ex) {
                     throw new RuntimeException("Operation interrupted (this should never happen)",ex);
                 }
@@ -244,12 +250,4 @@ public class CarTableModel extends AbstractTableModel{
         return cars.get(row);
     }
     
-    public Car getCarWithId(Long id){
-        for(Car c: cars){
-            if(c.getId().equals(id)){
-                return c;
-            }
-        }
-        return null;
-    }
 }

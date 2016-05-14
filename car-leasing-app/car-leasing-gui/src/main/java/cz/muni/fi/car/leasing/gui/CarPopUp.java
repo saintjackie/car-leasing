@@ -261,8 +261,9 @@ public class CarPopUp extends javax.swing.JPanel {
         }
         fillUpCarForFilteringFromTextInput();
         //table model filter
-        ((CarTableModel) table.getModel()).filterCars();
-        table.updateUI();
+        Window w = SwingUtilities.getWindowAncestor(SwingUtilities.getWindowAncestor(this));
+        ((CarTableModel) table.getModel()).filterCars((MainFrame)w);
+
         Window win = SwingUtilities.getWindowAncestor(this);
         win.dispose();
     }

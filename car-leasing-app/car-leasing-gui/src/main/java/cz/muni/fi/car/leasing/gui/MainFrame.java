@@ -53,7 +53,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         @Override
         protected void done() {
-            try {
+            try {                
                 dataSource = get();
                 initComponents();
                 jTabbedPane1.setTitleAt(0, texts.getString("cars"));
@@ -68,6 +68,11 @@ public class MainFrame extends javax.swing.JFrame {
                 setLocationRelativeTo(null);
             } catch (ExecutionException ex) {
                 // TODO jTextArea.append("Exception thrown in doInBackground(): " + ex.getCause() + "\n");
+                JOptionPane.showMessageDialog(null,
+                        "Connection to database failed, aplication is closing.",
+                        "Database error",
+                        JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
             } catch (InterruptedException ex) {
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
@@ -85,6 +90,8 @@ public class MainFrame extends javax.swing.JFrame {
         
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl(dbconf.getProperty("jdbc.url"));
+        ds.setUsername(dbconf.getProperty("jdbc.user"));
+        ds.setPassword(dbconf.getProperty("jdbc.password"));
  
         try(Connection con = ds.getConnection()) {
             //check if table exists, cause sql command "IF NOT EXISTS" doesnt work
@@ -355,18 +362,17 @@ public class MainFrame extends javax.swing.JFrame {
         Random rand = new Random();
         String[] types = new String[]{"Superb","X6","Megane","Evolution","Focus","i30","a6"};
         String[] vendors = new String[]{"Škoda","BMW","Renault","Mitsubishi","Ford","Huyndai","Audi"};
-        int[] modelYears = new int[]{2004,2005,2006,2007,2008,2009,2010,2011,2012};
-        String[] regisPlates = new String[]{"ANO 1234","NEE 9876","KIN 0001","SIL 3467","BON 4598","SUN 1246"};
-        int[] seats = new int[]{4,5,6};
+        int[] modelYears = new int[]{2006,2007,2008,2009,2010,2011,2012};
+        String[] regisPlates = new String[]{"ANO 1234","NEE 9876","KIN 0001","SIL 3467","BON 4598","SUN 1246","UFO 4577"};
+        int[] seats = new int[]{4,5,6,2,4,5,6};
         Car c;
-        for(int i=0;i<8;i++){
+        for(int i=0;i<7;i++){
             c = new Car();
-            int typeAndVendor = rand.nextInt(types.length);
-            c.setType(types[typeAndVendor]);
-            c.setVendor(vendors[typeAndVendor]);
-            c.setSeats(seats[rand.nextInt(seats.length)]);
-            c.setModelYear(modelYears[rand.nextInt(modelYears.length)]);
-            c.setRegistrationPlate(regisPlates[rand.nextInt(regisPlates.length)]);
+            c.setType(types[i]);
+            c.setVendor(vendors[i]);
+            c.setSeats(seats[i]);
+            c.setModelYear(modelYears[i]);
+            c.setRegistrationPlate(regisPlates[i]);
             ((CarTableModel)jTable1.getModel()).addCar(c);
         }       
         //customers
@@ -375,12 +381,12 @@ public class MainFrame extends javax.swing.JFrame {
         String[] births = new String[]{"1987-09-03","1990-11-23","1975-07-09","1968-01-27"};
         String[] addresses = new String[]{"Olša 346, Olomouc","Trnitá 2367, Praha","Férová 125, Brno","Lesná 346, Ostrava"};
         Customer cus;
-        for(int i=0;i<6;i++){
+        for(int i=0;i<4;i++){
             cus = new Customer();
-            cus.setFullName(fullNames[rand.nextInt(fullNames.length)]);
-            cus.setPhoneNumber(phones[rand.nextInt(phones.length)]);
-            cus.setBirthDate(LocalDate.parse(births[rand.nextInt(births.length)]));
-            cus.setAddress(addresses[rand.nextInt(addresses.length)]);
+            cus.setFullName(fullNames[i]);
+            cus.setPhoneNumber(phones[i]);
+            cus.setBirthDate(LocalDate.parse(births[i]));
+            cus.setAddress(addresses[i]);
             ((CustomerTableModel)jTable2.getModel()).addCustomer(cus);
         }
         //leases
@@ -388,10 +394,10 @@ public class MainFrame extends javax.swing.JFrame {
         String[] prices = new String[]{"1999","2999","2239","999","487","6500","8000"};
         String[] fees = new String[]{"299","199","99","1000","1099"};
         Lease l;
-        for(int i=0;i<6;i++){
+        for(int i=0;i<4;i++){
             l = new Lease();
-            l.setCarId(new Long(rand.nextInt(7)+1));
-            l.setCustomerId(new Long(rand.nextInt(5)+1));
+            l.setCarId(new Long(i+1));
+            l.setCustomerId(new Long(i+1));
             l.setStartTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
             l.setExpectedEndTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
             l.setRealEndTime(LocalDateTime.parse(dateTimes[rand.nextInt(dateTimes.length)]));
@@ -464,7 +470,7 @@ public class MainFrame extends javax.swing.JFrame {
         jButton3ActionPerformed(evt);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
-    private void setRemoveFilterButtonEnabled(boolean val){
+    public void setRemoveFilterButtonEnabled(boolean val){
         jButton3.setEnabled(val);
         jMenuItem6.setEnabled(val);
     }
